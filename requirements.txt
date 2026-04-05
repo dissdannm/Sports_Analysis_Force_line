@@ -1,0 +1,4 @@
+pyttsx3~=2.99
+mediapipe~=0.10.33
+fastapi
+uvicorn

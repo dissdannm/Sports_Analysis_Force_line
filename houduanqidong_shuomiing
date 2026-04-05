@@ -1,0 +1,14 @@
+在项目根目录执行：
+
+python -m uvicorn backend.app:app --reload
+
+如果你还没装：
+
+python -m pip install fastapi uvicorn
+启动后先测这 3 个接口
+1. 健康检查
+GET http://127.0.0.1:8000/api/v1/health
+2. 动作列表
+GET http://127.0.0.1:8000/api/v1/motions
+3. 单个动作详情
+GET http://127.0.0.1:8000/api/v1/motions/push_up

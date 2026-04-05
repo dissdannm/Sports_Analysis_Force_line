@@ -1,0 +1,122 @@
+{
+  "motion_id": "push_up",
+  "motion_name": "俯卧撑",
+  "version": "1.0.0",
+  "description": "二维俯卧撑动作力线分析规则",
+  "landmarks_required": [
+    "nose",
+    "left_shoulder",
+    "right_shoulder",
+    "left_elbow",
+    "right_elbow",
+    "left_wrist",
+    "right_wrist",
+    "left_hip",
+    "right_hip",
+    "left_knee",
+    "right_knee",
+    "left_ankle",
+    "right_ankle"
+  ],
+  "enabled_metrics": [
+    "body_line_angle",
+    "neck_forward_offset",
+    "left_elbow",
+    "right_elbow",
+    "pelvis_tilt"
+  ],
+  "metric_rules": {
+    "body_line_angle": {
+      "normal_range": {
+        "min": 165.0,
+        "max": 180.0
+      },
+      "severity_rules": {
+        "mild": [155.0, 165.0],
+        "moderate": [145.0, 155.0],
+        "severe": [0.0, 145.0]
+      }
+    },
+    "neck_forward_offset": {
+      "normal_range": {
+        "min": -0.03,
+        "max": 0.03
+      },
+      "severity_rules": {
+        "mild": [0.03, 0.05],
+        "moderate": [0.05, 0.08],
+        "severe": [0.08, 1.0]
+      }
+    },
+    "left_elbow": {
+      "normal_range": {
+        "min": 70.0,
+        "max": 110.0
+      },
+      "severity_rules": {
+        "mild": [110.0, 125.0],
+        "moderate": [125.0, 145.0],
+        "severe": [145.0, 180.0]
+      }
+    },
+    "right_elbow": {
+      "normal_range": {
+        "min": 70.0,
+        "max": 110.0
+      },
+      "severity_rules": {
+        "mild": [110.0, 125.0],
+        "moderate": [125.0, 145.0],
+        "severe": [145.0, 180.0]
+      }
+    },
+    "pelvis_tilt": {
+      "normal_range": {
+        "min": -0.02,
+        "max": 0.02
+      },
+      "severity_rules": {
+        "mild": [0.02, 0.04],
+        "moderate": [0.04, 0.07],
+        "severe": [0.07, 1.0]
+      }
+    }
+  },
+  "voice_prompts": {
+    "body_line_angle": {
+      "mild": "躯干略有下沉，请收紧核心",
+      "moderate": "躯干下沉明显，请保持肩髋踝一条线",
+      "severe": "动作变形严重，请立即调整整体力线"
+    },
+    "neck_forward_offset": {
+      "mild": "头部略微前伸",
+      "moderate": "请回收下巴，保持头颈中立",
+      "severe": "头颈前伸严重，请立即调整"
+    },
+    "left_elbow": {
+      "mild": "左肘角度略有偏差",
+      "moderate": "左肘发力线偏差明显，请调整支撑角度",
+      "severe": "左肘姿态异常明显，请立即调整"
+    },
+    "right_elbow": {
+      "mild": "右肘角度略有偏差",
+      "moderate": "右肘发力线偏差明显，请调整支撑角度",
+      "severe": "右肘姿态异常明显，请立即调整"
+    },
+    "pelvis_tilt": {
+      "mild": "骨盆略有倾斜",
+      "moderate": "骨盆稳定性不足，请保持身体中立",
+      "severe": "骨盆倾斜严重，请立即调整核心控制"
+    }
+  },
+  "timing": {
+    "stable_frames": 5,
+    "voice_cooldown_ms": 2000,
+    "min_hold_ms": 0
+  },
+  "tags": [
+    "upper_body",
+    "strength",
+    "push"
+  ]
+}

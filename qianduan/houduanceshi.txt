@@ -1,0 +1,640 @@
+好，那我们先做 **A：接口对接说明**，而且我按“你前端也是自己写”的角度来写，尽量直接给你一份**前后端联调规范**。
+
+你现在最需要的不是更多代码，而是把这几件事定死：
+
+* 前端按钮点击后传什么
+* 后端接口返回什么
+* 哪些字段是固定契约，后面不要随便改
+* 先用什么方式联调最稳
+
+---
+
+# 一、前后端联调的核心原则
+
+你这个项目现在最稳的联调模式是：
+
+## 1. 前端先拿动作列表
+
+用来渲染：
+
+* 俯卧撑
+* 深蹲
+* 平板支撑
+
+## 2. 用户点击某个动作按钮
+
+前端记录这个动作的 `motion_id`
+
+## 3. 前端开始采集并发送分析数据
+
+当前第一版建议先传：
+
+* `motion_id`
+* `session_id`
+* `timestamp_ms`
+* `landmarks`
+
+## 4. 后端返回：
+
+* `metrics`
+* `alerts`
+* `speak_text`
+
+前端再决定：
+
+* 怎么显示
+* 要不要本地播报
+* 是否缓存会话结果
+
+---
+
+# 二、你现在后端的接口总表
+
+## 1. 健康检查
+
+```http
+GET /api/v1/health
+```
+
+作用：
+
+* 前端启动时检查后端是否在线
+
+响应示例：
+
+```json id="jw21j2"
+{
+  "status": "ok",
+  "service": "sports-analysis-force-line-backend"
+}
+```
+
+---
+
+## 2. 获取动作列表
+
+```http
+GET /api/v1/motions
+```
+
+作用：
+
+* 前端启动时拉取动作按钮列表
+* 不要把动作按钮写死在前端代码里
+
+响应示例：
+
+```json id="x4gl6v"
+{
+  "items": [
+    {
+      "motion_id": "push_up",
+      "motion_name": "俯卧撑",
+      "version": "1.0.0",
+      "description": "二维俯卧撑动作力线分析规则"
+    },
+    {
+      "motion_id": "squat",
+      "motion_name": "深蹲",
+      "version": "1.0.0",
+      "description": "二维深蹲动作分析规则"
+    }
+  ]
+}
+```
+
+前端最少用这两个字段：
+
+* `motion_id`
+* `motion_name`
+
+---
+
+## 3. 获取单个动作详情
+
+```http
+GET /api/v1/motions/{motion_id}
+```
+
+作用：
+
+* 前端点进某动作时拉详细配置摘要
+* 可用于调试和展示当前动作启用了哪些指标
+
+例如：
+
+```http
+GET /api/v1/motions/push_up
+```
+
+响应示例：
+
+```json id="89vukf"
+{
+  "motion_id": "push_up",
+  "motion_name": "俯卧撑",
+  "version": "1.0.0",
+  "description": "二维俯卧撑动作力线分析规则",
+  "landmarks_required": [
+    "nose",
+    "left_shoulder",
+    "right_shoulder",
+    "left_elbow",
+    "right_elbow"
+  ],
+  "enabled_metrics": [
+    "body_line_angle",
+    "neck_forward_offset",
+    "left_elbow",
+    "right_elbow",
+    "pelvis_tilt"
+  ],
+  "tags": [
+    "upper_body",
+    "strength",
+    "push"
+  ],
+  "stable_frames": 5,
+  "voice_cooldown_ms": 2000,
+  "min_hold_ms": 0
+}
+```
+
+---
+
+## 4. 单帧分析接口
+
+```http
+POST /api/v1/analyze/frame
+```
+
+这是你未来前端联调最关键的接口。
+
+---
+
+# 三、前端按钮点击事件应该怎么接
+
+这是你最关心的部分之一。
+
+假设前端页面上有三个按钮：
+
+* 俯卧撑
+* 深蹲
+* 平板支撑
+
+那么前端不要只保存中文名，而是要保存：
+
+```ts id="p6dgkr"
+type MotionButton = {
+  motionId: string
+  motionName: string
+}
+```
+
+例如：
+
+```json id="ch2k5m"
+{
+  "motionId": "push_up",
+  "motionName": "俯卧撑"
+}
+```
+
+## 点击事件标准做法
+
+### 用户点击“俯卧撑”
+
+前端状态切换成：
+
+```json id="04d1jv"
+{
+  "current_motion_id": "push_up"
+}
+```
+
+然后后续所有分析请求都带上这个 `motion_id`。
+
+---
+
+# 四、单帧分析接口的请求格式
+
+## 请求地址
+
+```http
+POST /api/v1/analyze/frame
+Content-Type: application/json
+```
+
+## 请求体结构
+
+```json id="7aoq43"
+{
+  "motion_id": "push_up",
+  "session_id": "session_001",
+  "timestamp_ms": 1000,
+  "landmarks": {
+    "nose": {
+      "x": 0.52,
+      "y": 0.15,
+      "z": 0.01,
+      "visibility": 0.98
+    },
+    "left_shoulder": {
+      "x": 0.44,
+      "y": 0.28,
+      "z": 0.02,
+      "visibility": 0.97
+    },
+    "right_shoulder": {
+      "x": 0.58,
+      "y": 0.28,
+      "z": 0.02,
+      "visibility": 0.97
+    },
+    "left_elbow": {
+      "x": 0.40,
+      "y": 0.40,
+      "z": 0.03,
+      "visibility": 0.95
+    },
+    "right_elbow": {
+      "x": 0.62,
+      "y": 0.40,
+      "z": 0.03,
+      "visibility": 0.95
+    }
+  }
+}
+```
+
+---
+
+# 五、单帧分析接口字段说明
+
+## 1. `motion_id`
+
+当前动作 ID，必须和按钮选择一致。
+
+例如：
+
+* `push_up`
+* `squat`
+* `plank`
+
+这是最重要的字段之一。
+
+---
+
+## 2. `session_id`
+
+前端自己生成的会话 ID。
+建议前端每次进入一个动作分析会话时生成一次，比如：
+
+```text
+push_up_20260405_001
+```
+
+后端当前第一版不会强依赖它，但建议你前端先带上，后面会很有用。
+
+---
+
+## 3. `timestamp_ms`
+
+当前帧时间戳，单位毫秒。
+
+你前端可以这样理解：
+
+* 从本次动作分析开始计时
+* 每发一帧，带上当前时间偏移
+
+例如：
+
+* 第 1 帧：0
+* 第 2 帧：33
+* 第 3 帧：66
+
+---
+
+## 4. `landmarks`
+
+关键点字典。
+
+key 是固定关键点名，例如：
+
+* `nose`
+* `left_shoulder`
+* `right_shoulder`
+* `left_elbow`
+* `right_elbow`
+
+value 是：
+
+```json id="tod171"
+{
+  "x": 0.52,
+  "y": 0.15,
+  "z": 0.01,
+  "visibility": 0.98
+}
+```
+
+---
+
+# 六、单帧分析接口的响应格式
+
+响应示例：
+
+```json id="5te4fe"
+{
+  "motion_id": "push_up",
+  "session_id": "session_001",
+  "timestamp_ms": 1000,
+  "pose_detected": true,
+  "metrics": {
+    "body_line_angle": 154.2,
+    "neck_forward_offset": 0.06,
+    "left_elbow": 132.5,
+    "right_elbow": 128.7
+  },
+  "alerts": [
+    {
+      "code": "neck_forward_offset",
+      "level": "moderate",
+      "message": "请回收下巴，保持头颈中立",
+      "speak": true,
+      "speak_text": "请回收下巴，保持头颈中立",
+      "metric_id": "neck_forward_offset",
+      "motion_id": "push_up"
+    }
+  ]
+}
+```
+
+---
+
+# 七、响应字段怎么给前端用
+
+## 1. `pose_detected`
+
+表示这帧是否认为关键点有效。
+
+### 当前端看到：
+
+```json
+"pose_detected": false
+```
+
+可以做：
+
+* 提示“未检测到人体”
+* 暂停动作分析提示
+* 不刷新告警区域
+
+---
+
+## 2. `metrics`
+
+这是当前动作启用指标的结果。
+
+例如：
+
+* `body_line_angle`
+* `neck_forward_offset`
+
+前端可以用于：
+
+* 数值显示
+* 调试面板
+* 实时曲线
+* 结果记录
+
+---
+
+## 3. `alerts`
+
+这是当前最重要的业务结果。
+
+前端一般用：
+
+* `message` 做界面显示
+* `level` 做颜色区分
+* `speak_text` 做本地播报
+* `metric_id` 做问题定位
+
+---
+
+# 八、前端收到 `alerts` 后怎么处理
+
+推荐你前端这样处理。
+
+## 用于显示
+
+例如告警面板：
+
+* 严重：红色
+* 中度：橙色
+* 轻度：黄色
+
+### 对应规则
+
+* `severe`
+* `moderate`
+* `mild`
+
+---
+
+## 用于播报
+
+前端不要自己再写一套提示文案，直接优先使用后端返回的：
+
+```json
+"speak_text"
+```
+
+如果：
+
+```json
+"speak": true
+```
+
+就可以播报 `speak_text`。
+
+这样前后端提示语就能统一。
+
+---
+
+# 九、建议你前端定义的类型
+
+如果你前端也自己写，我建议直接定成这种结构。
+
+## TypeScript 类型建议
+
+```ts id="7i1q84"
+export type LandmarkInput = {
+  x: number
+  y: number
+  z?: number
+  visibility?: number
+}
+
+export type AnalyzeFrameRequest = {
+  motion_id: string
+  session_id?: string | null
+  timestamp_ms: number
+  landmarks: Record<string, LandmarkInput>
+}
+
+export type AlertResponse = {
+  code: string
+  level: "mild" | "moderate" | "severe"
+  message: string
+  speak: boolean
+  speak_text: string
+  metric_id: string
+  motion_id: string
+}
+
+export type AnalyzeFrameResponse = {
+  motion_id: string
+  session_id?: string | null
+  timestamp_ms: number
+  pose_detected: boolean
+  metrics: Record<string, number>
+  alerts: AlertResponse[]
+}
+```
+
+---
+
+# 十、前端联调推荐顺序
+
+你前端是自己写的话，最稳的顺序是：
+
+## 第 1 步
+
+先调：
+
+```http
+GET /api/v1/motions
+```
+
+把动作按钮列表渲染出来。
+
+---
+
+## 第 2 步
+
+点按钮后保存 `motion_id`
+
+例如：
+
+* 点俯卧撑 → `push_up`
+* 点深蹲 → `squat`
+
+---
+
+## 第 3 步
+
+先不用真实关键点，手写一个 mock 请求调：
+
+```http
+POST /api/v1/analyze/frame
+```
+
+先看后端响应结构对不对。
+
+---
+
+## 第 4 步
+
+再把真实前端关键点数据接上。
+
+---
+
+# 十一、现在这版联调你要注意的事
+
+## 1. `motion_id` 必须是后端已有动作
+
+也就是必须存在于：
+
+* `motions/*.json`
+
+否则会 404。
+
+---
+
+## 2. landmarks 名称必须对齐
+
+名称要和后端平台一致，例如：
+
+* `left_shoulder`
+* `right_knee`
+
+不要前端自己发明别名。
+
+---
+
+## 3. 先不要改动后端返回字段名字
+
+像这些字段建议现在就冻结：
+
+* `motion_id`
+* `timestamp_ms`
+* `pose_detected`
+* `metrics`
+* `alerts`
+* `message`
+* `speak_text`
+
+这样你前后端就不会反复改。
+
+---
+
+# 十二、我建议你现在给自己定一个联调规范
+
+## 前端按钮层
+
+只关心：
+
+* `motion_id`
+* `motion_name`
+
+## 分析请求层
+
+统一发：
+
+* `motion_id`
+* `session_id`
+* `timestamp_ms`
+* `landmarks`
+
+## 分析结果层
+
+统一收：
+
+* `metrics`
+* `alerts`
+
+这样整套接口会非常清楚。
+
+---
+
+# 十三、一句话总结
+
+因为前端也是你写，所以现在最稳的做法不是急着上复杂流媒体，而是：
+
+## 先把“按钮点击 → motion_id → analyze/frame → metrics/alerts”这条链彻底定死
+
+这是未来所有端统一接法的基础。
+
+---
+
+下一条我可以直接继续给你：
+
+## 《前端调用示例》
+
+我可以分别给你：
+
+* JavaScript/TypeScript `fetch` 版本
+* 一个最小前端状态管理示例
+* 按钮点击 + 调接口 + 渲染告警的最简 demo 结构

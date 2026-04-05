@@ -1,0 +1,26 @@
+当前版本不会把分析结果默认存到项目目录。
+
+默认情况下，结果会落到当前用户 Documents 目录下：
+
+C:\Users\你的用户名\Documents\SportsAnalysis
+
+目录结构示例：
+
+Documents/
+└─ SportsAnalysis/
+   └─ push_up/
+      └─ 20260405_153210/
+         ├─ frame_metrics.csv
+         └─ session_summary.json
+
+如果需要改到别的位置，可以修改：
+
+app/config.py
+
+中的：
+
+output_dir
+
+例如：
+
+output_dir = r"D:\SportsAnalysisData"

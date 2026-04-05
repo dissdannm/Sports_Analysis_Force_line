@@ -1,0 +1,165 @@
+运康学生填写模板
+
+他们每次新增动作，复制一个模板文件，改内容就行。
+
+模板文件长这样
+{
+  "motion_id": "",
+  "motion_name": "",
+  "version": "1.0.0",
+  "description": "",
+  "landmarks_required": [],
+  "enabled_metrics": [],
+  "metric_rules": {},
+  "voice_prompts": {},
+  "timing": {
+    "stable_frames": 5,
+    "voice_cooldown_ms": 2000,
+    "min_hold_ms": 0
+  },
+  "tags": []
+}
+运康学生每个字段怎么填
+1. motion_id
+
+动作英文唯一名。
+
+例如：
+
+"motion_id": "squat"
+
+规则：
+
+只能用英文和下划线
+一旦定了，后面尽量别改
+2. motion_name
+
+动作中文名。
+
+例如：
+
+"motion_name": "深蹲"
+3. version
+
+规则版本号。
+
+例如：
+
+"version": "1.0.0"
+
+规则：
+
+只要规则改了，就升版本
+比如：
+1.0.0
+1.0.1
+1.1.0
+4. description
+
+动作说明。
+
+例如：
+
+"description": "二维深蹲动作力线分析规则"
+5. landmarks_required
+
+这个动作至少需要哪些关键点。
+
+例如深蹲可以写：
+
+"landmarks_required": [
+  "left_shoulder",
+  "right_shoulder",
+  "left_hip",
+  "right_hip",
+  "left_knee",
+  "right_knee",
+  "left_ankle",
+  "right_ankle"
+]
+6. enabled_metrics
+
+这个动作启用哪些平台已有指标。
+
+例如：
+
+"enabled_metrics": [
+  "left_knee",
+  "right_knee",
+  "knee_offset_left",
+  "knee_offset_right",
+  "trunk_tilt"
+]
+
+最重要规则：
+这里面的名字，必须从：
+
+motions/metric_catalog.json
+
+里选，不能自己发明。
+
+7. metric_rules
+
+给每个启用指标写阈值。
+
+例如：
+
+"metric_rules": {
+  "left_knee": {
+    "normal_range": {
+      "min": 80.0,
+      "max": 120.0
+    },
+    "severity_rules": {
+      "mild": [120.0, 135.0],
+      "moderate": [135.0, 150.0],
+      "severe": [150.0, 180.0]
+    }
+  }
+}
+8. voice_prompts
+
+给每个启用指标写提示语。
+
+例如：
+
+"voice_prompts": {
+  "left_knee": {
+    "mild": "左膝角度略有偏差",
+    "moderate": "左膝偏差较明显，请调整下蹲轨迹",
+    "severe": "左膝姿态异常明显，请立即调整"
+  }
+}
+9. timing
+
+时序参数。
+
+例如：
+
+"timing": {
+  "stable_frames": 5,
+  "voice_cooldown_ms": 2000,
+  "min_hold_ms": 0
+}
+
+含义：
+
+stable_frames：连续几帧都成立才报警
+voice_cooldown_ms：同一个问题多久内不重复播
+min_hold_ms：动作至少持续多久才开始判断
+运康学生要遵守的 4 条规则
+规则 1
+
+只能从 metric_catalog.json 里选指标。
+
+规则 2
+
+enabled_metrics、metric_rules、voice_prompts 必须一一对应。
+
+规则 3
+
+不要改 metric_id 名字。
+
+规则 4
+
+改规则就升 version

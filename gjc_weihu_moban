@@ -1,0 +1,362 @@
+B. 你要做什么
+
+你是平台维护者，你的工作分两类。
+
+第一类：维护平台能力
+
+也就是系统“能算什么”。
+
+你主要维护这些文件：
+
+motions/metric_catalog.json
+analysis/angle_calculator.py
+analysis/alignment_analyzer.py
+analysis/motion_analyzer.py
+models/metrics.py
+core/motion_registry.py
+第二类：审核业务配置
+
+也就是检查运康学生写的 JSON 有没有问题。
+
+你要确认：
+
+他们写的指标是否存在
+阈值有没有漏
+提示语有没有漏
+动作文件能不能正常加载
+实际运行是否能触发告警
+C. 新增一个动作时，手把手怎么做
+
+下面分成两种情况。
+
+情况 1：新增动作，但平台已经会算这些指标
+
+这是最常见情况。
+比如你要新增：
+
+深蹲
+平板支撑
+弓步蹲
+你要做的步骤
+第 1 步：打开平台指标总表
+
+看：
+
+motions/metric_catalog.json
+
+确认平台已经支持你要用的指标。
+
+比如深蹲要用：
+
+left_knee
+right_knee
+knee_offset_left
+knee_offset_right
+trunk_tilt
+
+如果这些都在总表里，就说明不用改 Python。
+
+第 2 步：复制一个现有动作模板
+
+例如复制：
+
+motions/push_up.json
+
+另存为：
+
+motions/squat.json
+第 3 步：改动作基本信息
+
+把：
+
+motion_id
+motion_name
+description
+
+改成新的动作。
+
+例如：
+
+"motion_id": "squat",
+"motion_name": "深蹲",
+"description": "二维深蹲动作力线分析规则"
+第 4 步：改 landmarks_required
+
+填这个动作需要的关键点。
+
+第 5 步：改 enabled_metrics
+
+只保留深蹲要用的指标。
+
+例如：
+
+"enabled_metrics": [
+  "left_knee",
+  "right_knee",
+  "knee_offset_left",
+  "knee_offset_right",
+  "trunk_tilt"
+]
+第 6 步：改 metric_rules
+
+给这些指标填阈值。
+
+第 7 步：改 voice_prompts
+
+给这些指标填提示语。
+
+第 8 步：运行测试
+
+运行：
+
+python -m app.main
+
+如果想直接让它默认跑深蹲，就在：
+
+app/config.py
+
+里把：
+
+default_motion_id = "push_up"
+
+改成：
+
+default_motion_id = "squat"
+这类情况你要改哪些文件
+必改
+新增 motions/squat.json
+可选
+app/config.py 里的 default_motion_id
+不用改
+analysis/angle_calculator.py
+analysis/alignment_analyzer.py
+analysis/motion_analyzer.py
+core/motion_registry.py
+D. 什么时候必须改 Python
+
+只有一种情况：
+
+平台当前不会算你要的新指标
+
+比如运康学生提出一个新需求：
+
+“想加前臂相对地面的角度”
+“想加新的身体整体线角”
+“想加一个新的骨盆偏移指标”
+
+这时候不是改 JSON 就能解决，因为平台根本不会算。
+
+这时你要怎么做
+
+分成角度类和偏移类两种。
+
+情况 2A：新增的是“角度类指标”
+
+例如新增：
+
+forearm_angle
+你要改的文件
+1. 改 analysis/angle_calculator.py
+
+在这里新增这个指标的计算逻辑。
+
+也就是：
+
+定义这个角是由哪三个点算
+给它一个固定 metric_id
+2. 改 motions/metric_catalog.json
+
+新增一条平台指标定义。
+
+例如：
+
+{
+  "metric_id": "forearm_angle",
+  "display_name": "前臂角",
+  "metric_type": "angle",
+  "owner": "angle_calculator",
+  "points": ["left_elbow", "left_wrist", "left_index"],
+  "description": "前臂相关角度指标。",
+  "recommended_motions": ["push_up"],
+  "sign_convention": "角度值，单位为度。"
+}
+3. 再改动作 JSON
+
+比如在：
+
+motions/push_up.json
+
+里加入：
+
+enabled_metrics
+metric_rules
+voice_prompts
+你要记住
+新角度指标时，通常改：
+analysis/angle_calculator.py
+motions/metric_catalog.json
+motions/xxx.json
+情况 2B：新增的是“偏移 / 力线类指标”
+
+例如新增：
+
+shoulder_pelvis_offset
+你要改的文件
+1. 改 analysis/alignment_analyzer.py
+
+在这里新增这个偏移指标的计算逻辑。
+
+2. 改 models/metrics.py
+
+因为当前 AlignmentMetrics 是固定字段结构。
+新增一个 alignment 指标时，要把字段补进去。
+
+例如新增：
+
+shoulder_pelvis_offset: float = 0.0
+3. 改 analysis/motion_analyzer.py
+
+因为现在它会把 alignment_metrics 手动展开成字典。
+所以你新增一个 alignment 指标后，要把它加进：
+
+alignment_values = {
+    ...
+}
+
+里。
+
+4. 改 motions/metric_catalog.json
+
+新增这个指标定义。
+
+5. 再改动作 JSON
+
+在对应动作里启用并写规则。
+
+你要记住
+新偏移指标时，通常改：
+analysis/alignment_analyzer.py
+models/metrics.py
+analysis/motion_analyzer.py
+motions/metric_catalog.json
+motions/xxx.json
+E. 你以后到底该怎么判断“改哪”
+
+这是最重要的。
+
+每次新需求来了，你先问自己两句话。
+
+第一句：这是“新动作”，还是“新指标”？
+如果只是新动作
+
+例如：
+
+新增深蹲
+新增平板支撑
+
+先看平台已有指标够不够。
+
+如果平台已有指标够
+
+只改 JSON。
+
+第二句：这个需求是不是平台当前不会算？
+如果平台已经会算
+
+只改：
+
+motions/xxx.json
+如果平台不会算
+
+才改 Python。
+
+F. 给你一个最实用的“照着做”流程
+
+以后每次新增动作，你按这个清单走。
+
+新增动作标准流程
+第 1 步
+
+打开：
+
+motions/metric_catalog.json
+
+看平台有哪些指标能用。
+
+第 2 步
+
+判断：
+
+这些指标够不够？
+如果够 → 直接新建动作 JSON
+如果不够 → 先新增平台指标
+第 3 步
+
+如果够用，新建：
+
+motions/新动作名.json
+
+比如：
+
+motions/squat.json
+第 4 步
+
+填写：
+
+motion_id
+motion_name
+version
+description
+landmarks_required
+enabled_metrics
+metric_rules
+voice_prompts
+timing
+tags
+第 5 步
+
+运行测试：
+
+python -m app.main
+
+并把 default_motion_id 切到新动作看效果。
+
+第 6 步
+
+如果运行时报“指标不存在”或“缺少规则”，先修 JSON。
+不要第一时间怀疑 Python。
+
+G. 最后给你一个超简版总表
+运康学生做什么
+只改
+motions/push_up.json
+motions/squat.json
+motions/plank.json
+负责
+启用哪些指标
+阈值多少
+风险等级
+提示语
+时序参数
+不能做
+自己发明新 metric_id
+改 Python 底层代码
+你做什么
+维护平台能力
+motions/metric_catalog.json
+analysis/angle_calculator.py
+analysis/alignment_analyzer.py
+analysis/motion_analyzer.py
+models/metrics.py
+审核配置
+检查 JSON 合法性
+检查指标是否存在
+运行测试
+新增动作时怎么判断
+只换规则
+
+→ 只改 motions/*.json
+
+需要新指标
+
+→ 先改 Python 平台能力，再改 metric_catalog.json，最后改 motions/*.json

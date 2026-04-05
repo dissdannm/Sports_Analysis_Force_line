@@ -1,0 +1,176 @@
+{
+  "catalog_version": "1.0.0",
+  "description": "平台级基础指标总表。由程序员维护，定义系统当前支持的全部可计算指标。",
+  "metrics": [
+    {
+      "metric_id": "left_elbow",
+      "display_name": "左肘角",
+      "metric_type": "angle",
+      "owner": "angle_calculator",
+      "points": ["left_shoulder", "left_elbow", "left_wrist"],
+      "description": "由左肩-左肘-左腕三点形成的夹角。",
+      "recommended_motions": ["push_up", "plank"],
+      "sign_convention": "角度值，单位为度。"
+    },
+    {
+      "metric_id": "right_elbow",
+      "display_name": "右肘角",
+      "metric_type": "angle",
+      "owner": "angle_calculator",
+      "points": ["right_shoulder", "right_elbow", "right_wrist"],
+      "description": "由右肩-右肘-右腕三点形成的夹角。",
+      "recommended_motions": ["push_up", "plank"],
+      "sign_convention": "角度值，单位为度。"
+    },
+    {
+      "metric_id": "left_shoulder",
+      "display_name": "左肩角",
+      "metric_type": "angle",
+      "owner": "angle_calculator",
+      "points": ["left_elbow", "left_shoulder", "left_hip"],
+      "description": "由左肘-左肩-左髋形成的夹角。",
+      "recommended_motions": ["push_up"],
+      "sign_convention": "角度值，单位为度。"
+    },
+    {
+      "metric_id": "right_shoulder",
+      "display_name": "右肩角",
+      "metric_type": "angle",
+      "owner": "angle_calculator",
+      "points": ["right_elbow", "right_shoulder", "right_hip"],
+      "description": "由右肘-右肩-右髋形成的夹角。",
+      "recommended_motions": ["push_up"],
+      "sign_convention": "角度值，单位为度。"
+    },
+    {
+      "metric_id": "left_hip",
+      "display_name": "左髋角",
+      "metric_type": "angle",
+      "owner": "angle_calculator",
+      "points": ["left_shoulder", "left_hip", "left_knee"],
+      "description": "由左肩-左髋-左膝形成的夹角。",
+      "recommended_motions": ["squat", "plank"],
+      "sign_convention": "角度值，单位为度。"
+    },
+    {
+      "metric_id": "right_hip",
+      "display_name": "右髋角",
+      "metric_type": "angle",
+      "owner": "angle_calculator",
+      "points": ["right_shoulder", "right_hip", "right_knee"],
+      "description": "由右肩-右髋-右膝形成的夹角。",
+      "recommended_motions": ["squat", "plank"],
+      "sign_convention": "角度值，单位为度。"
+    },
+    {
+      "metric_id": "left_knee",
+      "display_name": "左膝角",
+      "metric_type": "angle",
+      "owner": "angle_calculator",
+      "points": ["left_hip", "left_knee", "left_ankle"],
+      "description": "由左髋-左膝-左踝形成的夹角。",
+      "recommended_motions": ["squat", "gait_basic"],
+      "sign_convention": "角度值，单位为度。"
+    },
+    {
+      "metric_id": "right_knee",
+      "display_name": "右膝角",
+      "metric_type": "angle",
+      "owner": "angle_calculator",
+      "points": ["right_hip", "right_knee", "right_ankle"],
+      "description": "由右髋-右膝-右踝形成的夹角。",
+      "recommended_motions": ["squat", "gait_basic"],
+      "sign_convention": "角度值，单位为度。"
+    },
+    {
+      "metric_id": "left_ankle",
+      "display_name": "左踝角",
+      "metric_type": "angle",
+      "owner": "angle_calculator",
+      "points": ["left_knee", "left_ankle", "left_foot_index"],
+      "description": "由左膝-左踝-左足尖形成的夹角。",
+      "recommended_motions": ["squat", "gait_basic"],
+      "sign_convention": "角度值，单位为度。"
+    },
+    {
+      "metric_id": "right_ankle",
+      "display_name": "右踝角",
+      "metric_type": "angle",
+      "owner": "angle_calculator",
+      "points": ["right_knee", "right_ankle", "right_foot_index"],
+      "description": "由右膝-右踝-右足尖形成的夹角。",
+      "recommended_motions": ["squat", "gait_basic"],
+      "sign_convention": "角度值，单位为度。"
+    },
+    {
+      "metric_id": "trunk_tilt",
+      "display_name": "躯干倾斜",
+      "metric_type": "offset",
+      "owner": "alignment_analyzer",
+      "points": ["shoulder_mid", "hip_mid"],
+      "description": "肩中点相对髋中点的中轴倾斜程度。",
+      "recommended_motions": ["squat", "plank", "push_up"],
+      "sign_convention": "越接近 0 表示越垂直。正负号表示左右偏移方向。"
+    },
+    {
+      "metric_id": "pelvis_tilt",
+      "display_name": "骨盆倾斜",
+      "metric_type": "offset",
+      "owner": "alignment_analyzer",
+      "points": ["left_hip", "right_hip"],
+      "description": "左右髋点垂直差值，近似表示骨盆左右高低差。",
+      "recommended_motions": ["push_up", "plank", "gait_basic"],
+      "sign_convention": "0 表示左右水平；正负号表示哪侧更高。"
+    },
+    {
+      "metric_id": "neck_forward_offset",
+      "display_name": "头颈前伸偏移",
+      "metric_type": "offset",
+      "owner": "alignment_analyzer",
+      "points": ["nose", "shoulder_mid"],
+      "description": "鼻点相对肩中点的水平偏移，用于近似表示头颈前伸。",
+      "recommended_motions": ["push_up", "plank"],
+      "sign_convention": "越接近 0 越中立；绝对值越大，前伸越明显。"
+    },
+    {
+      "metric_id": "center_offset",
+      "display_name": "身体中心偏移",
+      "metric_type": "offset",
+      "owner": "alignment_analyzer",
+      "points": ["hip_mid", "ankle_mid"],
+      "description": "髋中点相对双踝中点的水平偏移。",
+      "recommended_motions": ["squat", "gait_basic"],
+      "sign_convention": "越接近 0 越居中。"
+    },
+    {
+      "metric_id": "knee_offset_left",
+      "display_name": "左膝偏移",
+      "metric_type": "offset",
+      "owner": "alignment_analyzer",
+      "points": ["left_hip", "left_knee", "left_ankle"],
+      "description": "左膝相对左髋-左踝参考线的横向偏移。",
+      "recommended_motions": ["squat", "gait_basic"],
+      "sign_convention": "绝对值越大表示偏移越明显。"
+    },
+    {
+      "metric_id": "knee_offset_right",
+      "display_name": "右膝偏移",
+      "metric_type": "offset",
+      "owner": "alignment_analyzer",
+      "points": ["right_hip", "right_knee", "right_ankle"],
+      "description": "右膝相对右髋-右踝参考线的横向偏移。",
+      "recommended_motions": ["squat", "gait_basic"],
+      "sign_convention": "绝对值越大表示偏移越明显。"
+    },
+    {
+      "metric_id": "body_line_angle",
+      "display_name": "身体整体力线角",
+      "metric_type": "angle",
+      "owner": "alignment_analyzer",
+      "points": ["shoulder_mid", "hip_mid", "ankle_mid"],
+      "description": "肩中点-髋中点-踝中点构成的整体身体线角，用于评价俯卧撑、平板支撑等动作的整体对线。",
+      "recommended_motions": ["push_up", "plank"],
+      "sign_convention": "越接近理想范围，整体力线越稳定。"
+    }
+  ]
+}
