@@ -230,6 +230,27 @@ def main(
 
             result = pipeline.process_frame(frame, timestamp_ms)
 
+            """
+            #调试
+            if result.motion_metrics is not None:
+                print("=== 当前启用指标 ===")
+                for metric_id, value in result.motion_metrics.selected.items():
+                    print(metric_id, "=", round(value, 4))
+
+            if result.alerts:
+                print("=== 当前告警 ===")
+                for alert in result.alerts:
+                    print(
+                        "metric_id=", alert.metric_id,
+                        "level=", alert.level.value,
+                        "message=", alert.message,
+                        "speak_text=", alert.speak_text,
+                    )
+            else:
+                print("=== 当前无告警 ===")
+
+            """
+
             session_manager.register_frame(
                 pose_detected=result.pose_detected,
                 alerts=result.alerts,
