@@ -32,16 +32,11 @@ class SpeechManager:
     """
     语音播报管理器。
 
-    当前企业第一版策略：
-    1. 正常 -> 异常：播报一次异常提示
-    2. 异常持续：不重复播报
-    3. 异常 -> 正常：播报一次恢复提示
-    4. 正常持续：不重复播报
-
-    设计说明：
-    - 这更符合真实运动场景
-    - 用户不需要频繁看手机
-    - 语音只在关键状态变化时提醒
+    当前策略：
+    1. 第一次出现主告警时播报
+    2. 主告警发生切换时播报新的主告警
+    3. 所有告警消失时播报恢复提示
+    4. 主告警持续不变时不重复播报
     """
 
     _ALERT_PRIORITY = {
@@ -55,17 +50,11 @@ class SpeechManager:
         speech_engine: SpeechInterface | None = None,
         recovery_text: str = "动作已经正确，请继续保持",
     ) -> None:
-        """
-        参数说明：
-        - speech_engine:
-            具体语音实现，可为 None
-        - recovery_text:
-            恢复正常时的统一提示语
-        """
         self.speech_engine = speech_engine
         self.recovery_text = recovery_text
 
-        self._had_active_alert_last_frame = False
+        self._last_primary_alert_code: str | None = None
+        self._last_primary_alert_level: AlertLevel | None = None
 
     def handle_alerts(
         self,
@@ -77,50 +66,70 @@ class SpeechManager:
         根据当前告警列表决定是否播报。
 
         说明：
-        - 当前版本不依赖 timestamp_ms 和 cooldown_ms 做重复抑制，
-          因为我们已经改为“只在状态切换时播报”
-        - 保留这两个参数是为了兼容现有主流程接口
+        - 当前先不依赖 timestamp_ms / cooldown_ms
+        - 保留参数只是为了兼容现有主流程
         """
         candidate_alerts = [alert for alert in alerts if alert.speak]
-        has_active_alert = len(candidate_alerts) > 0
+        current_primary_alert = self._select_highest_priority_alert(candidate_alerts)
 
-        # 情况 1：正常 -> 异常，播报一次异常
-        if has_active_alert and not self._had_active_alert_last_frame:
-            best_alert = self._select_highest_priority_alert(candidate_alerts)
-            if best_alert is None:
-                return SpeechDecision(should_speak=False)
+        # 情况 1：当前没有任何告警，且上一帧有主告警 -> 播恢复
+        if current_primary_alert is None:
+            if self._last_primary_alert_code is not None:
+                self._last_primary_alert_code = None
+                self._last_primary_alert_level = None
+                self._emit_speech(self.recovery_text)
 
-            speak_text = best_alert.speak_text.strip() or best_alert.message.strip()
-            if not speak_text:
-                return SpeechDecision(should_speak=False)
+                return SpeechDecision(
+                    should_speak=True,
+                    text=self.recovery_text,
+                    alert=None,
+                )
 
-            self._had_active_alert_last_frame = True
+            return SpeechDecision(should_speak=False)
+
+        # 当前主告警标识
+        current_code = current_primary_alert.code
+        current_level = current_primary_alert.level
+
+        # 情况 2：第一次出现主告警 -> 播报
+        if self._last_primary_alert_code is None:
+            speak_text = current_primary_alert.speak_text.strip() or current_primary_alert.message.strip()
+            self._last_primary_alert_code = current_code
+            self._last_primary_alert_level = current_level
             self._emit_speech(speak_text)
 
             return SpeechDecision(
                 should_speak=True,
                 text=speak_text,
-                alert=best_alert,
+                alert=current_primary_alert,
             )
 
-        # 情况 2：异常 -> 正常，播报一次恢复
-        if not has_active_alert and self._had_active_alert_last_frame:
-            self._had_active_alert_last_frame = False
-            self._emit_speech(self.recovery_text)
+        # 情况 3：主告警变了（code 变了，或者等级变了）-> 播新告警
+        if (
+            current_code != self._last_primary_alert_code
+            or current_level != self._last_primary_alert_level
+        ):
+            speak_text = current_primary_alert.speak_text.strip() or current_primary_alert.message.strip()
+            self._last_primary_alert_code = current_code
+            self._last_primary_alert_level = current_level
+            self._emit_speech(speak_text)
 
             return SpeechDecision(
                 should_speak=True,
-                text=self.recovery_text,
-                alert=None,
+                text=speak_text,
+                alert=current_primary_alert,
             )
 
-        # 情况 3：异常持续 或 正常持续，不播
-        self._had_active_alert_last_frame = has_active_alert
+        # 情况 4：主告警没变 -> 不播
         return SpeechDecision(should_speak=False)
 
     def _select_highest_priority_alert(self, alerts: list[Alert]) -> Alert | None:
         """
         从候选告警中选出优先级最高的一条。
+
+        优先级规则：
+        1. 告警等级越高优先级越高
+        2. 若等级相同，保留列表中最先出现的一条
         """
         if not alerts:
             return None

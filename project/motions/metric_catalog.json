@@ -1,6 +1,6 @@
 {
   "catalog_version": "1.0.0",
-  "description": "平台级基础指标总表。由程序员维护，定义系统当前支持的全部可计算指标。",
+  "description": "平台级基础指标总表。定义系统当前支持的全部可计算指标。",
   "metrics": [
     {
       "metric_id": "left_elbow",

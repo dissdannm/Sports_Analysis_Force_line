@@ -1,0 +1,104 @@
+{
+  "motion_id": "bridge",
+  "motion_name": "臀桥",
+  "version": "1.0.0",
+  "description": "二维臀桥动作力线分析规则（企业第一版基础版）",
+  "landmarks_required": [
+    "left_shoulder",
+    "right_shoulder",
+    "left_hip",
+    "right_hip",
+    "left_knee",
+    "right_knee",
+    "left_ankle",
+    "right_ankle"
+  ],
+  "enabled_metrics": [
+    "left_hip",
+    "right_hip",
+    "pelvis_tilt"
+  ],
+  "metric_rules": {
+    "left_hip": {
+      "normal_range": {
+        "min": 160.0,
+        "max": 180.0
+      },
+      "severity_rules": {
+        "mild": [150.0, 160.0],
+        "moderate": [135.0, 150.0],
+        "severe": [0.0, 135.0]
+      }
+    },
+    "right_hip": {
+      "normal_range": {
+        "min": 160.0,
+        "max": 180.0
+      },
+      "severity_rules": {
+        "mild": [150.0, 160.0],
+        "moderate": [135.0, 150.0],
+        "severe": [0.0, 135.0]
+      }
+    },
+    "pelvis_tilt": {
+      "normal_range": {
+        "min": -0.05,
+        "max": 0.05
+      },
+      "severity_rules": {
+        "mild": [0.05, 0.08],
+        "moderate": [0.08, 0.12],
+        "severe": [0.12, 1.0]
+      }
+    }
+  },
+  "voice_prompts": {
+    "left_hip": {
+      "mild": "左侧髋伸展略不足，请继续抬高臀部",
+      "moderate": "左侧髋伸展不足，请加强髋部发力",
+      "severe": "左侧髋伸展明显不足，请立即调整臀桥高度"
+    },
+    "right_hip": {
+      "mild": "右侧髋伸展略不足，请继续抬高臀部",
+      "moderate": "右侧髋伸展不足，请加强髋部发力",
+      "severe": "右侧髋伸展明显不足，请立即调整臀桥高度"
+    },
+    "pelvis_tilt": {
+      "mild": "骨盆略有倾斜，请保持骨盆稳定",
+      "moderate": "骨盆稳定性不足，请保持左右髋部平衡",
+      "severe": "骨盆倾斜明显，请立即调整身体对称性"
+    }
+  },
+  "timing": {
+    "stable_frames": 5,
+    "voice_cooldown_ms": 2000,
+    "min_hold_ms": 1000
+  },
+  "tags": [
+    "glute",
+    "bridge",
+    "supine",
+    "rehab"
+  ],
+  "extras": {
+    "reference_notes": {
+      "start_position": "仰卧，上背部与臀部贴地，双臂自然放于身体两侧，双膝约90度，双脚平放地面，脚间距与臀同宽，脚尖正直向前或微外展10至15度。",
+      "peak_position": "顶峰位重点观察髋伸展与骨盆稳定。",
+      "future_metrics": [
+        "ascent_duration",
+        "peak_hold_duration",
+        "descent_duration",
+        "hip_angular_velocity",
+        "trajectory_consistency",
+        "ahp_quality_score"
+      ],
+      "ahp_weights": {
+        "hip_extension": 0.4,
+        "pelvic_stability": 0.3,
+        "timing_control": 0.2,
+        "trajectory_consistency": 0.1
+      }
+    }
+  }
+}

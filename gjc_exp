@@ -24,3 +24,8 @@ output_dir
 例如：
 
 output_dir = r"D:\SportsAnalysisData"
+1. 放到 motions/
+2. MotionRegistry.load_all() 启动时读它
+3. 解析成 MotionDefinition
+4. Pipeline 根据 motion_id 拿到它
+5. MotionAnalyzer 和 RuleEngine 使用它
