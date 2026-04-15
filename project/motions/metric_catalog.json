@@ -1,5 +1,5 @@
 {
-  "catalog_version": "1.0.0",
+  "catalog_version": "1.1.0",
   "description": "平台级基础指标总表。定义系统当前支持的全部可计算指标。",
   "metrics": [
     {
@@ -49,7 +49,7 @@
       "owner": "angle_calculator",
       "points": ["left_shoulder", "left_hip", "left_knee"],
       "description": "由左肩-左髋-左膝形成的夹角。",
-      "recommended_motions": ["squat", "plank"],
+      "recommended_motions": ["squat", "plank", "bridge"],
       "sign_convention": "角度值，单位为度。"
     },
     {
@@ -59,7 +59,7 @@
       "owner": "angle_calculator",
       "points": ["right_shoulder", "right_hip", "right_knee"],
       "description": "由右肩-右髋-右膝形成的夹角。",
-      "recommended_motions": ["squat", "plank"],
+      "recommended_motions": ["squat", "plank", "bridge"],
       "sign_convention": "角度值，单位为度。"
     },
     {
@@ -69,7 +69,7 @@
       "owner": "angle_calculator",
       "points": ["left_hip", "left_knee", "left_ankle"],
       "description": "由左髋-左膝-左踝形成的夹角。",
-      "recommended_motions": ["squat", "gait_basic"],
+      "recommended_motions": ["squat", "gait_basic", "sit_up"],
       "sign_convention": "角度值，单位为度。"
     },
     {
@@ -79,7 +79,7 @@
       "owner": "angle_calculator",
       "points": ["right_hip", "right_knee", "right_ankle"],
       "description": "由右髋-右膝-右踝形成的夹角。",
-      "recommended_motions": ["squat", "gait_basic"],
+      "recommended_motions": ["squat", "gait_basic", "sit_up"],
       "sign_convention": "角度值，单位为度。"
     },
     {
@@ -119,7 +119,7 @@
       "owner": "alignment_analyzer",
       "points": ["left_hip", "right_hip"],
       "description": "左右髋点垂直差值，近似表示骨盆左右高低差。",
-      "recommended_motions": ["push_up", "plank", "gait_basic"],
+      "recommended_motions": ["push_up", "plank", "gait_basic", "bridge"],
       "sign_convention": "0 表示左右水平；正负号表示哪侧更高。"
     },
     {
@@ -171,6 +171,76 @@
       "description": "肩中点-髋中点-踝中点构成的整体身体线角，用于评价俯卧撑、平板支撑等动作的整体对线。",
       "recommended_motions": ["push_up", "plank"],
       "sign_convention": "越接近理想范围，整体力线越稳定。"
+    },
+    {
+      "metric_id": "trunk_ground_angle",
+      "display_name": "躯干与地面夹角",
+      "metric_type": "angle",
+      "owner": "alignment_analyzer",
+      "points": ["shoulder_mid", "hip_mid", "ground_reference"],
+      "description": "肩中点与髋中点连线相对地面水平线的夹角，用于仰卧起坐等动作的躯干抬起分析。",
+      "recommended_motions": ["sit_up"],
+      "sign_convention": "0度表示躯干与地面近似平行，角度越大表示躯干抬起越明显。"
+    },
+    {
+      "metric_id": "knee_angle_variation",
+      "display_name": "膝关节角度变化",
+      "metric_type": "temporal",
+      "owner": "temporal_analyzer",
+      "points": ["left_hip", "left_knee", "left_ankle", "right_hip", "right_knee", "right_ankle"],
+      "description": "动作过程中膝关节角度的变化幅度，用于判断腿部借力或下肢稳定性。",
+      "recommended_motions": ["sit_up"],
+      "sign_convention": "数值越大表示膝关节角度变化越明显。"
+    },
+    {
+      "metric_id": "rep_cycle_duration",
+      "display_name": "单次动作周期时长",
+      "metric_type": "temporal",
+      "owner": "temporal_analyzer",
+      "points": [],
+      "description": "一次完整动作从开始到结束的持续时间，单位为秒。",
+      "recommended_motions": ["sit_up"],
+      "sign_convention": "单位秒。"
+    },
+    {
+      "metric_id": "ascent_duration",
+      "display_name": "上升阶段时长",
+      "metric_type": "temporal",
+      "owner": "temporal_analyzer",
+      "points": [],
+      "description": "动作上升阶段持续时间，单位为秒。",
+      "recommended_motions": ["bridge"],
+      "sign_convention": "单位秒。"
+    },
+    {
+      "metric_id": "peak_hold_duration",
+      "display_name": "顶峰停留时长",
+      "metric_type": "temporal",
+      "owner": "temporal_analyzer",
+      "points": [],
+      "description": "动作顶峰位置的保持时间，单位为秒。",
+      "recommended_motions": ["bridge"],
+      "sign_convention": "单位秒。"
+    },
+    {
+      "metric_id": "descent_duration",
+      "display_name": "下降阶段时长",
+      "metric_type": "temporal",
+      "owner": "temporal_analyzer",
+      "points": [],
+      "description": "动作下降阶段持续时间，单位为秒。",
+      "recommended_motions": ["bridge"],
+      "sign_convention": "单位秒。"
+    },
+    {
+      "metric_id": "hip_angular_velocity",
+      "display_name": "髋关节角速度",
+      "metric_type": "temporal",
+      "owner": "temporal_analyzer",
+      "points": ["left_shoulder", "left_hip", "left_knee", "right_shoulder", "right_hip", "right_knee"],
+      "description": "髋关节角度随时间变化的速度，用于评价动作急促程度。",
+      "recommended_motions": ["bridge"],
+      "sign_convention": "单位为度每秒。"
     }
   ]
 }

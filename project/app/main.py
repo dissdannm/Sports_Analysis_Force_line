@@ -1,5 +1,3 @@
-# app/main.py
-
 from __future__ import annotations
 
 import cv2
@@ -10,6 +8,7 @@ from analysis.angle_calculator import AngleCalculator
 from analysis.motion_analyzer import MotionAnalyzer
 from analysis.noise_filter import NoiseFilter
 from analysis.rule_engine import RuleEngine
+from analysis.temporal_analyzer import TemporalAnalyzer
 from app.config import AppConfig
 from core.motion_registry import MotionRegistry
 from core.pipeline import Pipeline
@@ -32,12 +31,6 @@ def resolve_motion_id(
 ) -> str:
     """
     统一解析当前应使用的 motion_id。
-
-    设计目标：
-    1. 统一动作选择入口，兼容本地调试与未来前端调用
-    2. 支持外部直接传入 preferred_motion_id
-    3. 支持本地交互式选择
-    4. 支持默认动作兜底
 
     优先级：
     1. preferred_motion_id
@@ -71,9 +64,7 @@ def resolve_motion_id(
         motion = motion_registry.get_motion(motion_id)
         print(f"{index}. {motion.motion_id} ({motion.motion_name})")
 
-    print(
-        f"\n请输入动作编号或 motion_id，直接回车将使用默认动作：{default_motion_id}"
-    )
+    print(f"\n请输入动作编号或 motion_id，直接回车将使用默认动作：{default_motion_id}")
     user_input = input("动作选择：").strip()
 
     if user_input == "":
@@ -109,24 +100,6 @@ def main(
 ) -> None:
     """
     本地调试模式程序入口。
-
-    参数说明：
-    - preferred_motion_id:
-        外部传入的动作 ID。
-        未来前端 / 后端调用时，可以直接传入此字段。
-    - interactive_select:
-        是否允许本地交互选择动作。
-        本地调试时一般为 True；
-        未来服务调用时可设为 False。
-
-    当前功能：
-    1. 打开本地摄像头
-    2. 使用 MediaPipe 检测人体关键点
-    3. 根据动作配置分析指标
-    4. 生成告警与语音决策
-    5. 在画面上显示骨架、指标、告警
-    6. 将逐帧结果写入 CSV
-    7. 会话结束时输出 JSON 摘要
     """
     config = AppConfig()
     config.validate()
@@ -163,10 +136,14 @@ def main(
 
     angle_calculator = AngleCalculator()
     alignment_analyzer = AlignmentAnalyzer()
+    temporal_analyzer = TemporalAnalyzer()
+
     motion_analyzer = MotionAnalyzer(
         angle_calculator=angle_calculator,
         alignment_analyzer=alignment_analyzer,
+        temporal_analyzer=temporal_analyzer,
     )
+
     noise_filter = NoiseFilter(window_size=config.noise_filter_window_size)
     rule_engine = RuleEngine()
 
@@ -227,29 +204,7 @@ def main(
                 break
 
             timestamp_ms = frame_index * 33
-
             result = pipeline.process_frame(frame, timestamp_ms)
-
-            """
-            #调试
-            if result.motion_metrics is not None:
-                print("=== 当前启用指标 ===")
-                for metric_id, value in result.motion_metrics.selected.items():
-                    print(metric_id, "=", round(value, 4))
-
-            if result.alerts:
-                print("=== 当前告警 ===")
-                for alert in result.alerts:
-                    print(
-                        "metric_id=", alert.metric_id,
-                        "level=", alert.level.value,
-                        "message=", alert.message,
-                        "speak_text=", alert.speak_text,
-                    )
-            else:
-                print("=== 当前无告警 ===")
-
-            """
 
             session_manager.register_frame(
                 pose_detected=result.pose_detected,

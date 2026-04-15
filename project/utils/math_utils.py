@@ -105,3 +105,26 @@ def point_from_landmark_xy(landmark) -> Optional[Point2D]:
     if landmark is None:
         return None
     return landmark.x, landmark.y
+def angle_with_horizontal(
+    point_start: tuple[float, float],
+    point_end: tuple[float, float],
+) -> float:
+    """
+    计算线段相对水平线的夹角，返回 0 ~ 180 度。
+
+    说明：
+    - 用于仰卧起坐中的躯干与地面夹角近似计算
+    - 当前使用二维图像坐标
+    """
+    dx = point_end[0] - point_start[0]
+    dy = point_end[1] - point_start[1]
+
+    angle_rad = math.atan2(abs(dy), abs(dx))
+    return math.degrees(angle_rad)
+
+
+def clamp(value: float, min_value: float, max_value: float) -> float:
+    """
+    将数值限制在指定区间内。
+    """
+    return max(min_value, min(value, max_value))

@@ -1,8 +1,8 @@
 {
   "motion_id": "sit_up",
   "motion_name": "仰卧起坐",
-  "version": "1.0.0",
-  "description": "二维仰卧起坐动作分析规则（企业第一版基础版）",
+  "version": "2.1.0",
+  "description": "严格对照《国家学生体质健康标准》的仰卧起坐规则（第一版标准化重构）",
   "landmarks_required": [
     "left_shoulder",
     "right_shoulder",
@@ -14,10 +14,12 @@
     "right_ankle"
   ],
   "enabled_metrics": [
-    "left_knee",
-    "right_knee",
-    "pelvis_tilt"
-  ],
+  "left_knee",
+  "right_knee",
+  "trunk_ground_angle",
+  "knee_angle_variation",
+  "rep_cycle_duration"
+],
   "metric_rules": {
     "left_knee": {
       "normal_range": {
@@ -41,15 +43,37 @@
         "severe": [110.0, 180.0]
       }
     },
-    "pelvis_tilt": {
+    "trunk_ground_angle": {
       "normal_range": {
-        "min": -0.05,
-        "max": 0.05
+        "min": 30.0,
+        "max": 45.0
       },
       "severity_rules": {
-        "mild": [0.05, 0.08],
-        "moderate": [0.08, 0.12],
-        "severe": [0.12, 1.0]
+        "mild": [20.0, 30.0],
+        "moderate": [10.0, 20.0],
+        "severe": [0.0, 10.0]
+      }
+    },
+    "knee_angle_variation": {
+      "normal_range": {
+        "min": 0.0,
+        "max": 15.0
+      },
+      "severity_rules": {
+        "mild": [15.0, 20.0],
+        "moderate": [20.0, 30.0],
+        "severe": [30.0, 180.0]
+      }
+    },
+    "rep_cycle_duration": {
+      "normal_range": {
+        "min": 1.2,
+        "max": 3.0
+      },
+      "severity_rules": {
+        "mild": [0.8, 1.2],
+        "moderate": [0.5, 0.8],
+        "severe": [0.0, 0.5]
       }
     }
   },
@@ -64,10 +88,20 @@
       "moderate": "右膝角度不规范，请调整腿部支撑姿态",
       "severe": "右膝角度明显异常，请立即调整准备姿势"
     },
-    "pelvis_tilt": {
-      "mild": "骨盆略有偏斜，请保持骨盆稳定",
-      "moderate": "骨盆稳定性不足，请减少躯干代偿",
-      "severe": "骨盆偏斜明显，请立即调整躯干与下肢发力方式"
+    "trunk_ground_angle": {
+      "mild": "再起高一点，肘部向膝盖靠近",
+      "moderate": "动作幅度不足，请继续卷腹",
+      "severe": "动作幅度明显不足，请重新发力"
+    },
+    "knee_angle_variation": {
+      "mild": "双腿略有晃动，请保持下肢稳定",
+      "moderate": "腿部借力明显，请减少下肢代偿",
+      "severe": "双腿借力严重，请立即调整发力方式"
+    },
+    "rep_cycle_duration": {
+      "mild": "动作稍快，请放慢节奏",
+      "moderate": "动作过快，请控制起落速度",
+      "severe": "速度明显过快，请重新控制动作节奏"
     }
   },
   "timing": {
@@ -79,55 +113,13 @@
     "core",
     "sit_up",
     "student_fitness",
-    "supine"
+    "national_standard"
   ],
   "extras": {
-    "reference_notes": {
-      "start_position": "全身仰卧于垫上，两腿稍分开，屈膝约90度，双手手指交叉贴于脑后或放于两耳侧，双脚固定。",
-      "official_requirements": [
-        "起始阶段肩胛需触垫",
-        "肘部触及或超过双膝记为有效",
-        "臀部不能离地借力"
-      ],
-      "recommended_thresholds_for_future_versions": {
-        "trunk_ground_angle_start": "0° ± 5°",
-        "trunk_ground_angle_valid_peak": "30° - 45°",
-        "trunk_ground_angle_too_high": "> 60°",
-        "neck_flexion_threshold": "< 20°",
-        "lumbar_gap_threshold": "< 2 cm",
-        "rep_cycle_time_threshold": "> 1.2 s",
-        "knee_angle_variation_threshold": "< 15°"
-      },
-      "future_metrics": [
-        "trunk_ground_angle",
-        "neck_flexion_angle",
-        "lumbar_gap_distance",
-        "rep_cycle_duration",
-        "knee_angle_variation",
-        "rep_counter",
-        "motion_state_machine",
-        "quality_score"
-      ],
-      "future_state_machine": [
-        "准备",
-        "卷腹向心阶段",
-        "顶峰判定",
-        "回落离心阶段",
-        "动作完成"
-      ],
-      "future_scoring": {
-        "hard_constraints": [
-          "颈部代偿",
-          "腰部代偿",
-          "动作幅度",
-          "肩胛触垫"
-        ],
-        "soft_constraints": {
-          "speed": 0.5,
-          "leg_stability": 0.3,
-          "trunk_angle": 0.2
-        }
-      }
-    }
+    "future_metrics": [
+      "neck_flexion_angle",
+      "lumbar_gap_distance",
+      "quality_score"
+    ]
   }
 }

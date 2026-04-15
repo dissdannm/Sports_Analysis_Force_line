@@ -20,18 +20,6 @@ from perception.pose_estimator import PoseEstimator
 class PipelineResult:
     """
     单帧处理结果。
-
-    字段说明：
-    - frame:
-        处理后用于显示的图像
-    - motion_metrics:
-        当前动作的指标结果；未检测到人体时可为 None
-    - alerts:
-        当前动作的告警列表
-    - speech_decision:
-        当前帧的语音决策结果
-    - pose_detected:
-        当前帧是否检测到人体
     """
     frame: object
     motion_metrics: MotionMetrics | None
@@ -43,17 +31,6 @@ class PipelineResult:
 class Pipeline:
     """
     单帧分析流水线。
-
-    设计定位：
-    - 串联输入帧到最终结果的处理流程
-    - 不负责打开摄像头
-    - 不负责窗口生命周期管理
-    - 不负责应用启动逻辑
-
-    设计原则：
-    1. 主流程清晰
-    2. 模块边界明确
-    3. 只依赖已经存在的核心组件
     """
 
     def __init__(
@@ -107,6 +84,7 @@ class Pipeline:
         motion_metrics = self.motion_analyzer.analyze(
             pose_landmarks=pose_landmarks,
             motion_definition=self.motion_definition,
+            timestamp_ms=timestamp_ms,
         )
 
         filtered_metrics = self.noise_filter.apply(motion_metrics)

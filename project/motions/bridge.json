@@ -1,8 +1,8 @@
 {
   "motion_id": "bridge",
   "motion_name": "臀桥",
-  "version": "1.0.0",
-  "description": "二维臀桥动作力线分析规则（企业第一版基础版）",
+  "version": "2.0.0",
+  "description": "二维臀桥动作力线分析规则（含时序增强版）",
   "landmarks_required": [
     "left_shoulder",
     "right_shoulder",
@@ -14,10 +14,14 @@
     "right_ankle"
   ],
   "enabled_metrics": [
-    "left_hip",
-    "right_hip",
-    "pelvis_tilt"
-  ],
+  "left_hip",
+  "right_hip",
+  "pelvis_tilt",
+  "ascent_duration",
+  "peak_hold_duration",
+  "descent_duration",
+  "hip_angular_velocity"
+],
   "metric_rules": {
     "left_hip": {
       "normal_range": {
@@ -51,6 +55,50 @@
         "moderate": [0.08, 0.12],
         "severe": [0.12, 1.0]
       }
+    },
+    "ascent_duration": {
+      "normal_range": {
+        "min": 1.5,
+        "max": 2.0
+      },
+      "severity_rules": {
+        "mild": [1.2, 1.5],
+        "moderate": [0.8, 1.2],
+        "severe": [0.0, 0.8]
+      }
+    },
+    "peak_hold_duration": {
+      "normal_range": {
+        "min": 1.0,
+        "max": 2.0
+      },
+      "severity_rules": {
+        "mild": [0.7, 1.0],
+        "moderate": [0.4, 0.7],
+        "severe": [0.0, 0.4]
+      }
+    },
+    "descent_duration": {
+      "normal_range": {
+        "min": 1.2,
+        "max": 2.0
+      },
+      "severity_rules": {
+        "mild": [0.9, 1.2],
+        "moderate": [0.6, 0.9],
+        "severe": [0.0, 0.6]
+      }
+    },
+    "hip_angular_velocity": {
+      "normal_range": {
+        "min": 0.0,
+        "max": 70.0
+      },
+      "severity_rules": {
+        "mild": [70.0, 85.0],
+        "moderate": [85.0, 100.0],
+        "severe": [100.0, 300.0]
+      }
     }
   },
   "voice_prompts": {
@@ -68,6 +116,26 @@
       "mild": "骨盆略有倾斜，请保持骨盆稳定",
       "moderate": "骨盆稳定性不足，请保持左右髋部平衡",
       "severe": "骨盆倾斜明显，请立即调整身体对称性"
+    },
+    "ascent_duration": {
+      "mild": "抬起速度略快，请放慢上升节奏",
+      "moderate": "抬起过快，请控制发力速度",
+      "severe": "抬起速度明显过快，请立即放慢节奏"
+    },
+    "peak_hold_duration": {
+      "mild": "顶峰停留略短，请再保持一下",
+      "moderate": "顶峰保持不足，请增强控制",
+      "severe": "顶峰几乎没有停留，请重新控制动作"
+    },
+    "descent_duration": {
+      "mild": "下放速度略快，请慢一点回落",
+      "moderate": "下放过快，请控制离心阶段",
+      "severe": "下放明显过快，请立即减慢回落速度"
+    },
+    "hip_angular_velocity": {
+      "mild": "髋部动作略快，请控制速度",
+      "moderate": "髋部角速度过快，请降低动作急促程度",
+      "severe": "髋部角速度明显过快，请立即调整节奏"
     }
   },
   "timing": {
@@ -82,23 +150,9 @@
     "rehab"
   ],
   "extras": {
-    "reference_notes": {
-      "start_position": "仰卧，上背部与臀部贴地，双臂自然放于身体两侧，双膝约90度，双脚平放地面，脚间距与臀同宽，脚尖正直向前或微外展10至15度。",
-      "peak_position": "顶峰位重点观察髋伸展与骨盆稳定。",
-      "future_metrics": [
-        "ascent_duration",
-        "peak_hold_duration",
-        "descent_duration",
-        "hip_angular_velocity",
-        "trajectory_consistency",
-        "ahp_quality_score"
-      ],
-      "ahp_weights": {
-        "hip_extension": 0.4,
-        "pelvic_stability": 0.3,
-        "timing_control": 0.2,
-        "trajectory_consistency": 0.1
-      }
-    }
+    "future_metrics": [
+      "trajectory_consistency",
+      "ahp_quality_score"
+    ]
   }
 }
