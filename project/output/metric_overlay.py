@@ -17,11 +17,6 @@ class MetricOverlay:
     - 不负责分析逻辑
     - 不负责告警判定
     - 不负责语音播报
-
-    当前支持三类输出：
-    1. 角度指标
-    2. 力线 / 偏移指标
-    3. 告警列表
     """
 
     def __init__(
@@ -32,19 +27,6 @@ class MetricOverlay:
         top_margin: int = 30,
         line_height: int = 24,
     ) -> None:
-        """
-        参数说明：
-        - font_scale:
-            字体大小
-        - font_thickness:
-            字体粗细
-        - left_margin:
-            左侧边距
-        - top_margin:
-            顶部起始位置
-        - line_height:
-            每行文字之间的间距
-        """
         self.font = cv2.FONT_HERSHEY_SIMPLEX
         self.font_scale = font_scale
         self.font_thickness = font_thickness
@@ -56,7 +38,7 @@ class MetricOverlay:
         """
         在图像左上角绘制角度指标。
         """
-        current_y = self.top_margin
+        current_y = self.top_margin + 70
 
         angle_items = sorted(angle_metrics.values.items(), key=lambda item: item[0])
 
@@ -75,9 +57,9 @@ class MetricOverlay:
 
     def draw_alignment(self, frame, alignment_metrics: AlignmentMetrics):
         """
-        在图像左侧中上区域绘制力线 / 偏移指标。
+        在图像左侧中下区域绘制力线 / 偏移指标。
         """
-        current_y = self.top_margin + 260
+        current_y = self.top_margin + 320
 
         alignment_lines = [
             f"trunk_tilt: {alignment_metrics.trunk_tilt:.4f}",
@@ -87,6 +69,9 @@ class MetricOverlay:
             f"knee_offset_left: {alignment_metrics.knee_offset_left:.4f}",
             f"knee_offset_right: {alignment_metrics.knee_offset_right:.4f}",
             f"body_line_angle: {alignment_metrics.body_line_angle:.2f}",
+            f"trunk_ground_angle: {alignment_metrics.trunk_ground_angle:.2f}",
+            f"neck_flexion_angle: {alignment_metrics.neck_flexion_angle:.2f}",
+            f"lumbar_gap_distance: {alignment_metrics.lumbar_gap_distance:.4f}",
         ]
 
         for text in alignment_lines:
@@ -104,16 +89,12 @@ class MetricOverlay:
     def draw_alerts(self, frame, alerts: list[Alert]):
         """
         在图像右上角绘制当前告警列表。
-
-        设计说明：
-        - 严重级别不同，颜色不同
-        - 第一版直接显示 message，保持简单和稳定
         """
         if not alerts:
             return frame
 
         image_width = frame.shape[1]
-        current_y = self.top_margin
+        current_y = self.top_margin + 70
 
         for alert in alerts:
             text = f"[{alert.level.value}] {alert.message}"
@@ -131,6 +112,53 @@ class MetricOverlay:
 
         return frame
 
+    def draw_scores(self, frame, motion_id: str, selected_metrics: dict[str, float]):
+        """
+        在画面左上角绘制动作评分与等级。
+        """
+        score = None
+        label = None
+
+        if motion_id == "sit_up":
+            score = selected_metrics.get("quality_score")
+            label = "Quality Score"
+        elif motion_id == "bridge":
+            score = selected_metrics.get("ahp_quality_score")
+            label = "AHP Score"
+
+        if score is None:
+            return frame
+
+        if score >= 90:
+            grade = "Excellent"
+            score_color = (0, 255, 0)
+        elif score >= 75:
+            grade = "Good"
+            score_color = (0, 255, 255)
+        elif score >= 60:
+            grade = "Fair"
+            score_color = (0, 165, 255)
+        else:
+            grade = "Poor"
+            score_color = (0, 0, 255)
+
+        self._draw_text(
+            frame=frame,
+            text=f"{label}: {score:.2f}",
+            x=self.left_margin,
+            y=self.top_margin,
+            color=score_color,
+        )
+        self._draw_text(
+            frame=frame,
+            text=f"Level: {grade}",
+            x=self.left_margin,
+            y=self.top_margin + self.line_height,
+            color=score_color,
+        )
+
+        return frame
+
     def _draw_text(
         self,
         frame,
@@ -139,9 +167,6 @@ class MetricOverlay:
         y: int,
         color: tuple[int, int, int],
     ) -> None:
-        """
-        绘制单行文字。
-        """
         cv2.putText(
             frame,
             text,
@@ -155,9 +180,6 @@ class MetricOverlay:
 
     @staticmethod
     def _resolve_alert_color(level: str) -> tuple[int, int, int]:
-        """
-        根据告警等级返回显示颜色（BGR）。
-        """
         if level == "severe":
             return (0, 0, 255)
         if level == "moderate":

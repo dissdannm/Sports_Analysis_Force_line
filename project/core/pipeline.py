@@ -1,5 +1,3 @@
-# core/pipeline.py
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -113,6 +111,12 @@ class Pipeline:
 
         if self.show_alerts:
             output_frame = self.metric_overlay.draw_alerts(output_frame, alerts)
+
+        output_frame = self.metric_overlay.draw_scores(
+            output_frame,
+            self.motion_definition.motion_id,
+            filtered_metrics.selected,
+        )
 
         return PipelineResult(
             frame=output_frame,
