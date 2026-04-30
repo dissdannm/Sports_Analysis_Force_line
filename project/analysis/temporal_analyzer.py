@@ -18,17 +18,16 @@ class TemporalAnalyzer:
     - sit_up:
         motion_phase, rep_counter, rep_cycle_duration, knee_angle_variation
     - bridge:
-        motion_phase, ascent_duration, peak_hold_duration, descent_duration, hip_angular_velocity
+        motion_phase, ascent_duration, peak_hold_duration, descent_duration,
+        hip_angular_velocity, trajectory_consistency
     """
 
-    # sit_up phase
     SIT_UP_PREPARE = 0.0
     SIT_UP_CONCENTRIC = 1.0
     SIT_UP_PEAK = 2.0
     SIT_UP_ECCENTRIC = 3.0
     SIT_UP_COMPLETE = 4.0
 
-    # bridge phase
     BRIDGE_PREPARE = 0.0
     BRIDGE_ASCENT = 1.0
     BRIDGE_PEAK = 2.0
@@ -39,7 +38,6 @@ class TemporalAnalyzer:
         self.reset()
 
     def reset(self) -> None:
-        # sit_up state
         self._sit_up_rep_counter = 0
         self._sit_up_last_rep_cycle_duration_s = 0.0
         self._sit_up_last_phase = self.SIT_UP_PREPARE
@@ -48,7 +46,6 @@ class TemporalAnalyzer:
         self._sit_up_baseline_left_knee: float | None = None
         self._sit_up_baseline_right_knee: float | None = None
 
-        # bridge state
         self._bridge_last_phase = self.BRIDGE_PREPARE
         self._bridge_last_hip_angle: float | None = None
         self._bridge_last_timestamp_ms: int | None = None
@@ -61,6 +58,9 @@ class TemporalAnalyzer:
         self._bridge_last_peak_hold_duration_s = 0.0
         self._bridge_last_descent_duration_s = 0.0
         self._bridge_last_hip_angular_velocity = 0.0
+
+        self._bridge_hip_y_history: list[float] = []
+        self._bridge_last_trajectory_consistency = 0.0
 
     def calculate(
         self,
@@ -76,9 +76,6 @@ class TemporalAnalyzer:
 
         return TemporalMetrics(values={})
 
-    # =========================
-    # sit_up
-    # =========================
     def _calculate_sit_up_metrics(
         self,
         base_metrics: dict[str, float],
@@ -198,9 +195,6 @@ class TemporalAnalyzer:
         right_delta = abs(right_knee - self._sit_up_baseline_right_knee)
         return (left_delta + right_delta) / 2.0
 
-    # =========================
-    # bridge
-    # =========================
     def _calculate_bridge_metrics(
         self,
         base_metrics: dict[str, float],
@@ -218,11 +212,9 @@ class TemporalAnalyzer:
                 hip_angle - self._bridge_last_hip_angle
             ) / dt_s
 
-        # ascent start
         if self._bridge_last_phase == self.BRIDGE_PREPARE and current_phase == self.BRIDGE_ASCENT:
             self._bridge_ascent_start_ms = timestamp_ms
 
-        # reach peak
         if self._bridge_last_phase == self.BRIDGE_ASCENT and current_phase == self.BRIDGE_PEAK:
             if self._bridge_ascent_start_ms is not None:
                 self._bridge_last_ascent_duration_s = (
@@ -230,7 +222,6 @@ class TemporalAnalyzer:
                 ) / 1000.0
             self._bridge_peak_start_ms = timestamp_ms
 
-        # peak -> descent
         if self._bridge_last_phase == self.BRIDGE_PEAK and current_phase == self.BRIDGE_DESCENT:
             if self._bridge_peak_start_ms is not None:
                 self._bridge_last_peak_hold_duration_s = (
@@ -238,13 +229,24 @@ class TemporalAnalyzer:
                 ) / 1000.0
             self._bridge_descent_start_ms = timestamp_ms
 
-        # descent -> complete
         if self._bridge_last_phase == self.BRIDGE_DESCENT and current_phase == self.BRIDGE_COMPLETE:
             if self._bridge_descent_start_ms is not None:
                 self._bridge_last_descent_duration_s = (
                     timestamp_ms - self._bridge_descent_start_ms
                 ) / 1000.0
             current_phase = self.BRIDGE_PREPARE
+
+        hip_mid_y_proxy = hip_angle
+        self._bridge_hip_y_history.append(hip_mid_y_proxy)
+        if len(self._bridge_hip_y_history) > 10:
+            self._bridge_hip_y_history.pop(0)
+
+        if len(self._bridge_hip_y_history) >= 2:
+            diffs = [
+                abs(self._bridge_hip_y_history[i] - self._bridge_hip_y_history[i - 1])
+                for i in range(1, len(self._bridge_hip_y_history))
+            ]
+            self._bridge_last_trajectory_consistency = sum(diffs) / len(diffs)
 
         self._bridge_last_phase = current_phase
         self._bridge_last_timestamp_ms = timestamp_ms
@@ -257,18 +259,11 @@ class TemporalAnalyzer:
                 "peak_hold_duration": self._bridge_last_peak_hold_duration_s,
                 "descent_duration": self._bridge_last_descent_duration_s,
                 "hip_angular_velocity": self._bridge_last_hip_angular_velocity,
+                "trajectory_consistency": self._bridge_last_trajectory_consistency,
             }
         )
 
     def _resolve_bridge_phase(self, hip_angle: float) -> float:
-        """
-        臀桥相位近似定义：
-        - prepare: < 140
-        - ascent: 140 ~ 160
-        - peak: 160 ~ 180
-        - descent: 从 peak 往下掉到 140 ~ 160
-        - complete: 回到 < 140
-        """
         if hip_angle < 140.0:
             if self._bridge_last_phase in (self.BRIDGE_ASCENT, self.BRIDGE_PEAK, self.BRIDGE_DESCENT):
                 return self.BRIDGE_COMPLETE

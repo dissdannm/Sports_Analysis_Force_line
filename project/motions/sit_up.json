@@ -1,8 +1,8 @@
 {
   "motion_id": "sit_up",
   "motion_name": "仰卧起坐",
-  "version": "2.1.0",
-  "description": "严格对照《国家学生体质健康标准》的仰卧起坐规则（第一版标准化重构）",
+  "version": "2.2.0",
+  "description": "严格对照《国家学生体质健康标准》的仰卧起坐规则（扩展变量版）",
   "landmarks_required": [
     "left_shoulder",
     "right_shoulder",
@@ -11,15 +11,18 @@
     "left_knee",
     "right_knee",
     "left_ankle",
-    "right_ankle"
+    "right_ankle",
+    "nose"
   ],
   "enabled_metrics": [
-  "left_knee",
-  "right_knee",
-  "trunk_ground_angle",
-  "knee_angle_variation",
-  "rep_cycle_duration"
-],
+    "left_knee",
+    "right_knee",
+    "trunk_ground_angle",
+    "knee_angle_variation",
+    "rep_cycle_duration",
+    "neck_flexion_angle",
+    "lumbar_gap_distance"
+  ],
   "metric_rules": {
     "left_knee": {
       "normal_range": {
@@ -75,6 +78,28 @@
         "moderate": [0.5, 0.8],
         "severe": [0.0, 0.5]
       }
+    },
+    "neck_flexion_angle": {
+      "normal_range": {
+        "min": 0.0,
+        "max": 20.0
+      },
+      "severity_rules": {
+        "mild": [20.0, 25.0],
+        "moderate": [25.0, 35.0],
+        "severe": [35.0, 180.0]
+      }
+    },
+    "lumbar_gap_distance": {
+      "normal_range": {
+        "min": 0.0,
+        "max": 0.03
+      },
+      "severity_rules": {
+        "mild": [0.03, 0.05],
+        "moderate": [0.05, 0.08],
+        "severe": [0.08, 1.0]
+      }
     }
   },
   "voice_prompts": {
@@ -102,6 +127,16 @@
       "mild": "动作稍快，请放慢节奏",
       "moderate": "动作过快，请控制起落速度",
       "severe": "速度明显过快，请重新控制动作节奏"
+    },
+    "neck_flexion_angle": {
+      "mild": "颈部略有代偿，请放松颈部",
+      "moderate": "不要用手拉头，下巴微收，眼睛看膝盖",
+      "severe": "颈部代偿明显，请立即调整发力方式"
+    },
+    "lumbar_gap_distance": {
+      "mild": "腰部略有离地风险，请收紧核心",
+      "moderate": "腰部贴紧垫子，不要悬空",
+      "severe": "腰部代偿明显，请立即调整动作"
     }
   },
   "timing": {
@@ -117,8 +152,6 @@
   ],
   "extras": {
     "future_metrics": [
-      "neck_flexion_angle",
-      "lumbar_gap_distance",
       "quality_score"
     ]
   }

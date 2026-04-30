@@ -10,28 +10,16 @@ from utils.math_utils import (
     midpoint,
     point_from_landmark_xy,
     safe_ratio,
+    line_midpoint_vertical_gap,
 )
 
 
 class AlignmentAnalyzer:
     """
     平台级基础力线 / 偏移分析器。
-
-    当前平台支持的基础指标：
-    - trunk_tilt
-    - pelvis_tilt
-    - neck_forward_offset
-    - center_offset
-    - knee_offset_left
-    - knee_offset_right
-    - body_line_angle
-    - trunk_ground_angle
     """
 
     def calculate_all(self, pose_landmarks: PoseLandmarks) -> AlignmentMetrics:
-        """
-        计算当前姿态下平台支持的全部基础力线 / 偏移指标。
-        """
         metrics = AlignmentMetrics()
 
         self._calculate_trunk_tilt_and_center_offset(pose_landmarks, metrics)
@@ -40,6 +28,8 @@ class AlignmentAnalyzer:
         self._calculate_knee_offsets(pose_landmarks, metrics)
         self._calculate_body_line_angle(pose_landmarks, metrics)
         self._calculate_trunk_ground_angle(pose_landmarks, metrics)
+        self._calculate_neck_flexion_angle(pose_landmarks, metrics)
+        self._calculate_lumbar_gap_distance(pose_landmarks, metrics)
 
         return metrics
 
@@ -145,13 +135,6 @@ class AlignmentAnalyzer:
         pose_landmarks: PoseLandmarks,
         metrics: AlignmentMetrics,
     ) -> None:
-        """
-        计算躯干与地面夹角。
-
-        当前定义：
-        - 使用 shoulder_mid -> hip_mid 线段相对水平线的夹角
-        - 用于仰卧起坐等动作的躯干抬起近似分析
-        """
         left_shoulder = point_from_landmark_xy(pose_landmarks.get("left_shoulder"))
         right_shoulder = point_from_landmark_xy(pose_landmarks.get("right_shoulder"))
         left_hip = point_from_landmark_xy(pose_landmarks.get("left_hip"))
@@ -161,3 +144,42 @@ class AlignmentAnalyzer:
             shoulder_mid = midpoint(left_shoulder, right_shoulder)
             hip_mid = midpoint(left_hip, right_hip)
             metrics.trunk_ground_angle = angle_with_horizontal(hip_mid, shoulder_mid)
+
+    def _calculate_neck_flexion_angle(
+        self,
+        pose_landmarks: PoseLandmarks,
+        metrics: AlignmentMetrics,
+    ) -> None:
+        nose = point_from_landmark_xy(pose_landmarks.get("nose"))
+        left_shoulder = point_from_landmark_xy(pose_landmarks.get("left_shoulder"))
+        right_shoulder = point_from_landmark_xy(pose_landmarks.get("right_shoulder"))
+        left_hip = point_from_landmark_xy(pose_landmarks.get("left_hip"))
+        right_hip = point_from_landmark_xy(pose_landmarks.get("right_hip"))
+
+        if nose and left_shoulder and right_shoulder and left_hip and right_hip:
+            shoulder_mid = midpoint(left_shoulder, right_shoulder)
+            hip_mid = midpoint(left_hip, right_hip)
+            metrics.neck_flexion_angle = calculate_angle(
+                nose,
+                shoulder_mid,
+                hip_mid,
+            )
+
+    def _calculate_lumbar_gap_distance(
+        self,
+        pose_landmarks: PoseLandmarks,
+        metrics: AlignmentMetrics,
+    ) -> None:
+        left_shoulder = point_from_landmark_xy(pose_landmarks.get("left_shoulder"))
+        right_shoulder = point_from_landmark_xy(pose_landmarks.get("right_shoulder"))
+        left_hip = point_from_landmark_xy(pose_landmarks.get("left_hip"))
+        right_hip = point_from_landmark_xy(pose_landmarks.get("right_hip"))
+
+        if left_shoulder and right_shoulder and left_hip and right_hip:
+            shoulder_mid = midpoint(left_shoulder, right_shoulder)
+            hip_mid = midpoint(left_hip, right_hip)
+            metrics.lumbar_gap_distance = line_midpoint_vertical_gap(
+                shoulder_mid,
+                hip_mid,
+                hip_mid,
+            )

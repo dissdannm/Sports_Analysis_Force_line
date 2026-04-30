@@ -26,6 +26,8 @@ class AlignmentMetrics:
     knee_offset_right: float = 0.0
     body_line_angle: float = 0.0
     trunk_ground_angle: float = 0.0
+    neck_flexion_angle: float = 0.0
+    lumbar_gap_distance: float = 0.0
 
 
 @dataclass(slots=True)

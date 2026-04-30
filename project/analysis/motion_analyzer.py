@@ -38,6 +38,8 @@ class MotionAnalyzer:
                 "knee_offset_right": alignment_metrics.knee_offset_right,
                 "body_line_angle": alignment_metrics.body_line_angle,
                 "trunk_ground_angle": alignment_metrics.trunk_ground_angle,
+                "neck_flexion_angle": alignment_metrics.neck_flexion_angle,
+                "lumbar_gap_distance": alignment_metrics.lumbar_gap_distance,
             },
         )
 

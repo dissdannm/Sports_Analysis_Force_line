@@ -13,13 +13,6 @@ Vector2D = Tuple[float, float]
 def vector_from_points(start: Point2D, end: Point2D) -> Vector2D:
     """
     根据两个二维点生成向量 start -> end。
-
-    参数：
-    - start: 起点
-    - end: 终点
-
-    返回：
-    - 二维向量 (dx, dy)
     """
     return end[0] - start[0], end[1] - start[1]
 
@@ -41,18 +34,6 @@ def dot_product(v1: Vector2D, v2: Vector2D) -> float:
 def calculate_angle(p1: Point2D, vertex: Point2D, p3: Point2D) -> float:
     """
     计算三点形成的夹角，顶点为 vertex。
-
-    参数：
-    - p1: 第一条边上的点
-    - vertex: 顶点
-    - p3: 第二条边上的点
-
-    返回：
-    - 角度值，单位为度
-
-    说明：
-    - 若任一向量长度为 0，则返回 0.0
-    - 内部会自动处理浮点误差，避免 acos 域错误
     """
     vector_1 = vector_from_points(vertex, p1)
     vector_2 = vector_from_points(vertex, p3)
@@ -80,8 +61,6 @@ def midpoint(point_1: Point2D, point_2: Point2D) -> Point2D:
 def safe_ratio(numerator: float, denominator: float, default: float = 0.0) -> float:
     """
     安全除法。
-
-    当 denominator 为 0 时，返回 default。
     """
     if denominator == 0:
         return default
@@ -91,30 +70,18 @@ def safe_ratio(numerator: float, denominator: float, default: float = 0.0) -> fl
 def point_from_landmark_xy(landmark) -> Optional[Point2D]:
     """
     从 Landmark 对象提取二维坐标 (x, y)。
-
-    参数：
-    - landmark: 任意具有 x、y 属性的对象
-
-    返回：
-    - (x, y) 二元组
-    - 若 landmark 为 None，则返回 None
-
-    设计说明：
-    - 这个函数有助于降低 analysis 层对具体数据类实现的耦合
     """
     if landmark is None:
         return None
     return landmark.x, landmark.y
+
+
 def angle_with_horizontal(
     point_start: tuple[float, float],
     point_end: tuple[float, float],
 ) -> float:
     """
     计算线段相对水平线的夹角，返回 0 ~ 180 度。
-
-    说明：
-    - 用于仰卧起坐中的躯干与地面夹角近似计算
-    - 当前使用二维图像坐标
     """
     dx = point_end[0] - point_start[0]
     dy = point_end[1] - point_start[1]
@@ -128,3 +95,15 @@ def clamp(value: float, min_value: float, max_value: float) -> float:
     将数值限制在指定区间内。
     """
     return max(min_value, min(value, max_value))
+
+
+def line_midpoint_vertical_gap(
+    point_a: Point2D,
+    point_b: Point2D,
+    reference_point: Point2D,
+) -> float:
+    """
+    计算线段中点相对参考点的垂直差，用于近似腰部离地风险。
+    """
+    mid_y = (point_a[1] + point_b[1]) / 2.0
+    return abs(mid_y - reference_point[1])
