@@ -1,8 +1,8 @@
 {
   "motion_id": "bridge",
   "motion_name": "臀桥",
-  "version": "2.1.0",
-  "description": "二维臀桥动作力线分析规则（含轨迹一致性版）",
+  "version": "2.2.0",
+  "description": "二维臀桥动作力线分析规则（完整评分版）",
   "landmarks_required": [
     "left_shoulder",
     "right_shoulder",
@@ -21,7 +21,8 @@
     "peak_hold_duration",
     "descent_duration",
     "hip_angular_velocity",
-    "trajectory_consistency"
+    "trajectory_consistency",
+    "ahp_quality_score"
   ],
   "metric_rules": {
     "left_hip": {
@@ -111,6 +112,17 @@
         "moderate": [8.0, 12.0],
         "severe": [12.0, 999.0]
       }
+    },
+    "ahp_quality_score": {
+      "normal_range": {
+        "min": 80.0,
+        "max": 100.0
+      },
+      "severity_rules": {
+        "mild": [60.0, 80.0],
+        "moderate": [40.0, 60.0],
+        "severe": [0.0, 40.0]
+      }
     }
   },
   "voice_prompts": {
@@ -153,6 +165,11 @@
       "mild": "动作轨迹略有波动，请保持平稳",
       "moderate": "轨迹稳定性不足，请控制动作路径",
       "severe": "动作轨迹波动明显，请立即调整控制能力"
+    },
+    "ahp_quality_score": {
+      "mild": "本次臀桥动作质量一般，请继续优化稳定性",
+      "moderate": "本次臀桥动作质量较低，请注意骨盆控制与节奏",
+      "severe": "本次臀桥动作质量较差，请重新调整动作"
     }
   },
   "timing": {
@@ -167,8 +184,6 @@
     "rehab"
   ],
   "extras": {
-    "future_metrics": [
-      "ahp_quality_score"
-    ]
+    "future_metrics": []
   }
 }

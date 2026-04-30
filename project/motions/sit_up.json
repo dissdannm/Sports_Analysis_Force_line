@@ -1,8 +1,8 @@
 {
   "motion_id": "sit_up",
   "motion_name": "仰卧起坐",
-  "version": "2.2.0",
-  "description": "严格对照《国家学生体质健康标准》的仰卧起坐规则（扩展变量版）",
+  "version": "2.3.0",
+  "description": "严格对照《国家学生体质健康标准》的仰卧起坐规则（完整评分版）",
   "landmarks_required": [
     "left_shoulder",
     "right_shoulder",
@@ -21,7 +21,8 @@
     "knee_angle_variation",
     "rep_cycle_duration",
     "neck_flexion_angle",
-    "lumbar_gap_distance"
+    "lumbar_gap_distance",
+    "quality_score"
   ],
   "metric_rules": {
     "left_knee": {
@@ -100,6 +101,17 @@
         "moderate": [0.05, 0.08],
         "severe": [0.08, 1.0]
       }
+    },
+    "quality_score": {
+      "normal_range": {
+        "min": 80.0,
+        "max": 100.0
+      },
+      "severity_rules": {
+        "mild": [60.0, 80.0],
+        "moderate": [40.0, 60.0],
+        "severe": [0.0, 40.0]
+      }
     }
   },
   "voice_prompts": {
@@ -137,6 +149,11 @@
       "mild": "腰部略有离地风险，请收紧核心",
       "moderate": "腰部贴紧垫子，不要悬空",
       "severe": "腰部代偿明显，请立即调整动作"
+    },
+    "quality_score": {
+      "mild": "本次动作质量一般，还可以更标准",
+      "moderate": "本次动作质量较低，请注意节奏和控制",
+      "severe": "本次动作质量较差，请重新调整动作标准"
     }
   },
   "timing": {
@@ -151,8 +168,6 @@
     "national_standard"
   ],
   "extras": {
-    "future_metrics": [
-      "quality_score"
-    ]
+    "future_metrics": []
   }
 }

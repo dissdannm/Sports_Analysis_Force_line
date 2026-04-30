@@ -271,6 +271,27 @@
       "description": "基于动作过程中髋轨迹波动计算的轨迹一致性近似指标，用于臀桥稳定性分析。",
       "recommended_motions": ["bridge"],
       "sign_convention": "数值越小表示轨迹越稳定；数值越大表示波动越明显。"
+    },
+
+    {
+      "metric_id": "quality_score",
+      "display_name": "动作质量评分",
+      "metric_type": "temporal",
+      "owner": "temporal_analyzer",
+      "points": [],
+      "description": "基于仰卧起坐关键指标综合计算的动作质量评分，满分100。",
+      "recommended_motions": ["sit_up"],
+      "sign_convention": "分数越高表示动作质量越好。"
+    },
+    {
+      "metric_id": "ahp_quality_score",
+      "display_name": "AHP综合评分",
+      "metric_type": "temporal",
+      "owner": "temporal_analyzer",
+      "points": [],
+      "description": "基于臀桥多项指标按AHP风格权重综合计算的评分，满分100。",
+      "recommended_motions": ["bridge"],
+      "sign_convention": "分数越高表示动作质量越好。"
     }
   ]
 }
