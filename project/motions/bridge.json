@@ -1,276 +1,174 @@
 {
-  "catalog_version": "1.2.0",
-  "description": "平台级基础指标总表。定义系统当前支持的全部可计算指标。",
-  "metrics": [
-    {
-      "metric_id": "left_elbow",
-      "display_name": "左肘角",
-      "metric_type": "angle",
-      "owner": "angle_calculator",
-      "points": ["left_shoulder", "left_elbow", "left_wrist"],
-      "description": "由左肩-左肘-左腕三点形成的夹角。",
-      "recommended_motions": ["push_up", "plank"],
-      "sign_convention": "角度值，单位为度。"
+  "motion_id": "bridge",
+  "motion_name": "臀桥",
+  "version": "2.1.0",
+  "description": "二维臀桥动作力线分析规则（含轨迹一致性版）",
+  "landmarks_required": [
+    "left_shoulder",
+    "right_shoulder",
+    "left_hip",
+    "right_hip",
+    "left_knee",
+    "right_knee",
+    "left_ankle",
+    "right_ankle"
+  ],
+  "enabled_metrics": [
+    "left_hip",
+    "right_hip",
+    "pelvis_tilt",
+    "ascent_duration",
+    "peak_hold_duration",
+    "descent_duration",
+    "hip_angular_velocity",
+    "trajectory_consistency"
+  ],
+  "metric_rules": {
+    "left_hip": {
+      "normal_range": {
+        "min": 160.0,
+        "max": 180.0
+      },
+      "severity_rules": {
+        "mild": [150.0, 160.0],
+        "moderate": [135.0, 150.0],
+        "severe": [0.0, 135.0]
+      }
     },
-    {
-      "metric_id": "right_elbow",
-      "display_name": "右肘角",
-      "metric_type": "angle",
-      "owner": "angle_calculator",
-      "points": ["right_shoulder", "right_elbow", "right_wrist"],
-      "description": "由右肩-右肘-右腕三点形成的夹角。",
-      "recommended_motions": ["push_up", "plank"],
-      "sign_convention": "角度值，单位为度。"
+    "right_hip": {
+      "normal_range": {
+        "min": 160.0,
+        "max": 180.0
+      },
+      "severity_rules": {
+        "mild": [150.0, 160.0],
+        "moderate": [135.0, 150.0],
+        "severe": [0.0, 135.0]
+      }
     },
-    {
-      "metric_id": "left_shoulder",
-      "display_name": "左肩角",
-      "metric_type": "angle",
-      "owner": "angle_calculator",
-      "points": ["left_elbow", "left_shoulder", "left_hip"],
-      "description": "由左肘-左肩-左髋形成的夹角。",
-      "recommended_motions": ["push_up"],
-      "sign_convention": "角度值，单位为度。"
+    "pelvis_tilt": {
+      "normal_range": {
+        "min": -0.05,
+        "max": 0.05
+      },
+      "severity_rules": {
+        "mild": [0.05, 0.08],
+        "moderate": [0.08, 0.12],
+        "severe": [0.12, 1.0]
+      }
     },
-    {
-      "metric_id": "right_shoulder",
-      "display_name": "右肩角",
-      "metric_type": "angle",
-      "owner": "angle_calculator",
-      "points": ["right_elbow", "right_shoulder", "right_hip"],
-      "description": "由右肘-右肩-右髋形成的夹角。",
-      "recommended_motions": ["push_up"],
-      "sign_convention": "角度值，单位为度。"
+    "ascent_duration": {
+      "normal_range": {
+        "min": 1.5,
+        "max": 2.0
+      },
+      "severity_rules": {
+        "mild": [1.2, 1.5],
+        "moderate": [0.8, 1.2],
+        "severe": [0.0, 0.8]
+      }
     },
-    {
-      "metric_id": "left_hip",
-      "display_name": "左髋角",
-      "metric_type": "angle",
-      "owner": "angle_calculator",
-      "points": ["left_shoulder", "left_hip", "left_knee"],
-      "description": "由左肩-左髋-左膝形成的夹角。",
-      "recommended_motions": ["squat", "plank", "bridge"],
-      "sign_convention": "角度值，单位为度。"
+    "peak_hold_duration": {
+      "normal_range": {
+        "min": 1.0,
+        "max": 2.0
+      },
+      "severity_rules": {
+        "mild": [0.7, 1.0],
+        "moderate": [0.4, 0.7],
+        "severe": [0.0, 0.4]
+      }
     },
-    {
-      "metric_id": "right_hip",
-      "display_name": "右髋角",
-      "metric_type": "angle",
-      "owner": "angle_calculator",
-      "points": ["right_shoulder", "right_hip", "right_knee"],
-      "description": "由右肩-右髋-右膝形成的夹角。",
-      "recommended_motions": ["squat", "plank", "bridge"],
-      "sign_convention": "角度值，单位为度。"
+    "descent_duration": {
+      "normal_range": {
+        "min": 1.2,
+        "max": 2.0
+      },
+      "severity_rules": {
+        "mild": [0.9, 1.2],
+        "moderate": [0.6, 0.9],
+        "severe": [0.0, 0.6]
+      }
     },
-    {
-      "metric_id": "left_knee",
-      "display_name": "左膝角",
-      "metric_type": "angle",
-      "owner": "angle_calculator",
-      "points": ["left_hip", "left_knee", "left_ankle"],
-      "description": "由左髋-左膝-左踝形成的夹角。",
-      "recommended_motions": ["squat", "gait_basic", "sit_up"],
-      "sign_convention": "角度值，单位为度。"
+    "hip_angular_velocity": {
+      "normal_range": {
+        "min": 0.0,
+        "max": 70.0
+      },
+      "severity_rules": {
+        "mild": [70.0, 85.0],
+        "moderate": [85.0, 100.0],
+        "severe": [100.0, 300.0]
+      }
     },
-    {
-      "metric_id": "right_knee",
-      "display_name": "右膝角",
-      "metric_type": "angle",
-      "owner": "angle_calculator",
-      "points": ["right_hip", "right_knee", "right_ankle"],
-      "description": "由右髋-右膝-右踝形成的夹角。",
-      "recommended_motions": ["squat", "gait_basic", "sit_up"],
-      "sign_convention": "角度值，单位为度。"
-    },
-    {
-      "metric_id": "left_ankle",
-      "display_name": "左踝角",
-      "metric_type": "angle",
-      "owner": "angle_calculator",
-      "points": ["left_knee", "left_ankle", "left_foot_index"],
-      "description": "由左膝-左踝-左足尖形成的夹角。",
-      "recommended_motions": ["squat", "gait_basic"],
-      "sign_convention": "角度值，单位为度。"
-    },
-    {
-      "metric_id": "right_ankle",
-      "display_name": "右踝角",
-      "metric_type": "angle",
-      "owner": "angle_calculator",
-      "points": ["right_knee", "right_ankle", "right_foot_index"],
-      "description": "由右膝-右踝-右足尖形成的夹角。",
-      "recommended_motions": ["squat", "gait_basic"],
-      "sign_convention": "角度值，单位为度。"
-    },
-    {
-      "metric_id": "trunk_tilt",
-      "display_name": "躯干倾斜",
-      "metric_type": "offset",
-      "owner": "alignment_analyzer",
-      "points": ["shoulder_mid", "hip_mid"],
-      "description": "肩中点相对髋中点的中轴倾斜程度。",
-      "recommended_motions": ["squat", "plank", "push_up"],
-      "sign_convention": "越接近 0 表示越垂直。正负号表示左右偏移方向。"
-    },
-    {
-      "metric_id": "pelvis_tilt",
-      "display_name": "骨盆倾斜",
-      "metric_type": "offset",
-      "owner": "alignment_analyzer",
-      "points": ["left_hip", "right_hip"],
-      "description": "左右髋点垂直差值，近似表示骨盆左右高低差。",
-      "recommended_motions": ["push_up", "plank", "gait_basic", "bridge"],
-      "sign_convention": "0 表示左右水平；正负号表示哪侧更高。"
-    },
-    {
-      "metric_id": "neck_forward_offset",
-      "display_name": "头颈前伸偏移",
-      "metric_type": "offset",
-      "owner": "alignment_analyzer",
-      "points": ["nose", "shoulder_mid"],
-      "description": "鼻点相对肩中点的水平偏移，用于近似表示头颈前伸。",
-      "recommended_motions": ["push_up", "plank"],
-      "sign_convention": "越接近 0 越中立；绝对值越大，前伸越明显。"
-    },
-    {
-      "metric_id": "center_offset",
-      "display_name": "身体中心偏移",
-      "metric_type": "offset",
-      "owner": "alignment_analyzer",
-      "points": ["hip_mid", "ankle_mid"],
-      "description": "髋中点相对双踝中点的水平偏移。",
-      "recommended_motions": ["squat", "gait_basic"],
-      "sign_convention": "越接近 0 越居中。"
-    },
-    {
-      "metric_id": "knee_offset_left",
-      "display_name": "左膝偏移",
-      "metric_type": "offset",
-      "owner": "alignment_analyzer",
-      "points": ["left_hip", "left_knee", "left_ankle"],
-      "description": "左膝相对左髋-左踝参考线的横向偏移。",
-      "recommended_motions": ["squat", "gait_basic"],
-      "sign_convention": "绝对值越大表示偏移越明显。"
-    },
-    {
-      "metric_id": "knee_offset_right",
-      "display_name": "右膝偏移",
-      "metric_type": "offset",
-      "owner": "alignment_analyzer",
-      "points": ["right_hip", "right_knee", "right_ankle"],
-      "description": "右膝相对右髋-右踝参考线的横向偏移。",
-      "recommended_motions": ["squat", "gait_basic"],
-      "sign_convention": "绝对值越大表示偏移越明显。"
-    },
-    {
-      "metric_id": "body_line_angle",
-      "display_name": "身体整体力线角",
-      "metric_type": "angle",
-      "owner": "alignment_analyzer",
-      "points": ["shoulder_mid", "hip_mid", "ankle_mid"],
-      "description": "肩中点-髋中点-踝中点构成的整体身体线角，用于评价俯卧撑、平板支撑等动作的整体对线。",
-      "recommended_motions": ["push_up", "plank"],
-      "sign_convention": "越接近理想范围，整体力线越稳定。"
-    },
-    {
-      "metric_id": "trunk_ground_angle",
-      "display_name": "躯干与地面夹角",
-      "metric_type": "angle",
-      "owner": "alignment_analyzer",
-      "points": ["shoulder_mid", "hip_mid", "ground_reference"],
-      "description": "肩中点与髋中点连线相对地面水平线的夹角，用于仰卧起坐等动作的躯干抬起分析。",
-      "recommended_motions": ["sit_up"],
-      "sign_convention": "0度表示躯干与地面近似平行，角度越大表示躯干抬起越明显。"
-    },
-    {
-      "metric_id": "neck_flexion_angle",
-      "display_name": "颈部屈曲角",
-      "metric_type": "angle",
-      "owner": "alignment_analyzer",
-      "points": ["nose", "shoulder_mid", "hip_mid"],
-      "description": "鼻点-肩中点-髋中点构成的二维近似颈部屈曲角，用于识别仰卧起坐中的颈部代偿。",
-      "recommended_motions": ["sit_up"],
-      "sign_convention": "角度越大，通常表示头颈前屈越明显。"
-    },
-    {
-      "metric_id": "lumbar_gap_distance",
-      "display_name": "腰部离地风险近似量",
-      "metric_type": "offset",
-      "owner": "alignment_analyzer",
-      "points": ["shoulder_mid", "hip_mid"],
-      "description": "基于躯干线形态的二维近似腰部离地/反弓风险指标，用于识别仰卧起坐中的腰部代偿。",
-      "recommended_motions": ["sit_up"],
-      "sign_convention": "数值越大，表示腰部离地风险越高。"
-    },
-    {
-      "metric_id": "knee_angle_variation",
-      "display_name": "膝关节角度变化",
-      "metric_type": "temporal",
-      "owner": "temporal_analyzer",
-      "points": ["left_hip", "left_knee", "left_ankle", "right_hip", "right_knee", "right_ankle"],
-      "description": "动作过程中膝关节角度的变化幅度，用于判断腿部借力或下肢稳定性。",
-      "recommended_motions": ["sit_up"],
-      "sign_convention": "数值越大表示膝关节角度变化越明显。"
-    },
-    {
-      "metric_id": "rep_cycle_duration",
-      "display_name": "单次动作周期时长",
-      "metric_type": "temporal",
-      "owner": "temporal_analyzer",
-      "points": [],
-      "description": "一次完整动作从开始到结束的持续时间，单位为秒。",
-      "recommended_motions": ["sit_up"],
-      "sign_convention": "单位秒。"
-    },
-    {
-      "metric_id": "ascent_duration",
-      "display_name": "上升阶段时长",
-      "metric_type": "temporal",
-      "owner": "temporal_analyzer",
-      "points": [],
-      "description": "动作上升阶段持续时间，单位为秒。",
-      "recommended_motions": ["bridge"],
-      "sign_convention": "单位秒。"
-    },
-    {
-      "metric_id": "peak_hold_duration",
-      "display_name": "顶峰停留时长",
-      "metric_type": "temporal",
-      "owner": "temporal_analyzer",
-      "points": [],
-      "description": "动作顶峰位置的保持时间，单位为秒。",
-      "recommended_motions": ["bridge"],
-      "sign_convention": "单位秒。"
-    },
-    {
-      "metric_id": "descent_duration",
-      "display_name": "下降阶段时长",
-      "metric_type": "temporal",
-      "owner": "temporal_analyzer",
-      "points": [],
-      "description": "动作下降阶段持续时间，单位为秒。",
-      "recommended_motions": ["bridge"],
-      "sign_convention": "单位秒。"
-    },
-    {
-      "metric_id": "hip_angular_velocity",
-      "display_name": "髋关节角速度",
-      "metric_type": "temporal",
-      "owner": "temporal_analyzer",
-      "points": ["left_shoulder", "left_hip", "left_knee", "right_shoulder", "right_hip", "right_knee"],
-      "description": "髋关节角度随时间变化的速度，用于评价动作急促程度。",
-      "recommended_motions": ["bridge"],
-      "sign_convention": "单位为度每秒。"
-    },
-    {
-      "metric_id": "trajectory_consistency",
-      "display_name": "轨迹一致性",
-      "metric_type": "temporal",
-      "owner": "temporal_analyzer",
-      "points": ["hip_mid"],
-      "description": "基于动作过程中髋轨迹波动计算的轨迹一致性近似指标，用于臀桥稳定性分析。",
-      "recommended_motions": ["bridge"],
-      "sign_convention": "数值越小表示轨迹越稳定；数值越大表示波动越明显。"
+    "trajectory_consistency": {
+      "normal_range": {
+        "min": 0.0,
+        "max": 5.0
+      },
+      "severity_rules": {
+        "mild": [5.0, 8.0],
+        "moderate": [8.0, 12.0],
+        "severe": [12.0, 999.0]
+      }
     }
-  ]
+  },
+  "voice_prompts": {
+    "left_hip": {
+      "mild": "左侧髋伸展略不足，请继续抬高臀部",
+      "moderate": "左侧髋伸展不足，请加强髋部发力",
+      "severe": "左侧髋伸展明显不足，请立即调整臀桥高度"
+    },
+    "right_hip": {
+      "mild": "右侧髋伸展略不足，请继续抬高臀部",
+      "moderate": "右侧髋伸展不足，请加强髋部发力",
+      "severe": "右侧髋伸展明显不足，请立即调整臀桥高度"
+    },
+    "pelvis_tilt": {
+      "mild": "骨盆略有倾斜，请保持骨盆稳定",
+      "moderate": "骨盆稳定性不足，请保持左右髋部平衡",
+      "severe": "骨盆倾斜明显，请立即调整身体对称性"
+    },
+    "ascent_duration": {
+      "mild": "抬起速度略快，请放慢上升节奏",
+      "moderate": "抬起过快，请控制发力速度",
+      "severe": "抬起速度明显过快，请立即放慢节奏"
+    },
+    "peak_hold_duration": {
+      "mild": "顶峰停留略短，请再保持一下",
+      "moderate": "顶峰保持不足，请增强控制",
+      "severe": "顶峰几乎没有停留，请重新控制动作"
+    },
+    "descent_duration": {
+      "mild": "下放速度略快，请慢一点回落",
+      "moderate": "下放过快，请控制离心阶段",
+      "severe": "下放明显过快，请立即减慢回落速度"
+    },
+    "hip_angular_velocity": {
+      "mild": "髋部动作略快，请控制速度",
+      "moderate": "髋部角速度过快，请降低动作急促程度",
+      "severe": "髋部角速度明显过快，请立即调整节奏"
+    },
+    "trajectory_consistency": {
+      "mild": "动作轨迹略有波动，请保持平稳",
+      "moderate": "轨迹稳定性不足，请控制动作路径",
+      "severe": "动作轨迹波动明显，请立即调整控制能力"
+    }
+  },
+  "timing": {
+    "stable_frames": 5,
+    "voice_cooldown_ms": 2000,
+    "min_hold_ms": 1000
+  },
+  "tags": [
+    "glute",
+    "bridge",
+    "supine",
+    "rehab"
+  ],
+  "extras": {
+    "future_metrics": [
+      "ahp_quality_score"
+    ]
+  }
 }

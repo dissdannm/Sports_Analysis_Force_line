@@ -1,5 +1,5 @@
 {
-  "catalog_version": "1.1.0",
+  "catalog_version": "1.2.0",
   "description": "平台级基础指标总表。定义系统当前支持的全部可计算指标。",
   "metrics": [
     {
@@ -183,6 +183,26 @@
       "sign_convention": "0度表示躯干与地面近似平行，角度越大表示躯干抬起越明显。"
     },
     {
+      "metric_id": "neck_flexion_angle",
+      "display_name": "颈部屈曲角",
+      "metric_type": "angle",
+      "owner": "alignment_analyzer",
+      "points": ["nose", "shoulder_mid", "hip_mid"],
+      "description": "鼻点-肩中点-髋中点构成的二维近似颈部屈曲角，用于识别仰卧起坐中的颈部代偿。",
+      "recommended_motions": ["sit_up"],
+      "sign_convention": "角度越大，通常表示头颈前屈越明显。"
+    },
+    {
+      "metric_id": "lumbar_gap_distance",
+      "display_name": "腰部离地风险近似量",
+      "metric_type": "offset",
+      "owner": "alignment_analyzer",
+      "points": ["shoulder_mid", "hip_mid"],
+      "description": "基于躯干线形态的二维近似腰部离地/反弓风险指标，用于识别仰卧起坐中的腰部代偿。",
+      "recommended_motions": ["sit_up"],
+      "sign_convention": "数值越大，表示腰部离地风险越高。"
+    },
+    {
       "metric_id": "knee_angle_variation",
       "display_name": "膝关节角度变化",
       "metric_type": "temporal",
@@ -241,8 +261,16 @@
       "description": "髋关节角度随时间变化的速度，用于评价动作急促程度。",
       "recommended_motions": ["bridge"],
       "sign_convention": "单位为度每秒。"
+    },
+    {
+      "metric_id": "trajectory_consistency",
+      "display_name": "轨迹一致性",
+      "metric_type": "temporal",
+      "owner": "temporal_analyzer",
+      "points": ["hip_mid"],
+      "description": "基于动作过程中髋轨迹波动计算的轨迹一致性近似指标，用于臀桥稳定性分析。",
+      "recommended_motions": ["bridge"],
+      "sign_convention": "数值越小表示轨迹越稳定；数值越大表示波动越明显。"
     }
-
-
   ]
 }

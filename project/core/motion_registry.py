@@ -98,38 +98,35 @@ class MotionRegistry:
 
         return catalog
 
-    def _load_motion_files(self) -> Dict[str, MotionDefinition]:
-        """
-        加载 motions 目录下全部动作配置文件。
-        """
-        motions: Dict[str, MotionDefinition] = {}
+    def _load_motion_files(self) -> dict[str, MotionDefinition]:
+        motions: dict[str, MotionDefinition] = {}
 
-        for json_path in sorted(self.motions_dir.glob("*.json")):
+        for json_path in self.motions_dir.glob("*.json"):
             if json_path.name == "metric_catalog.json":
                 continue
 
             motion = self._load_single_motion_file(json_path)
-
-            if motion.motion_id in motions:
-                raise ValueError(f"存在重复 motion_id: {motion.motion_id}")
+            if motion is None:
+                continue
 
             motions[motion.motion_id] = motion
 
-        if not motions:
-            raise ValueError("motions 目录中未找到任何动作配置文件")
-
         return motions
 
-    def _load_single_motion_file(self, json_path: Path) -> MotionDefinition:
-        """
-        加载并解析单个动作配置文件。
-        """
-        with open(json_path, "r", encoding="utf-8") as file:
+    def _load_single_motion_file(self, json_path) -> MotionDefinition | None:
+        with json_path.open("r", encoding="utf-8") as file:
             raw_data = json.load(file)
+
+        if not isinstance(raw_data, dict):
+            print(f"跳过非动作配置文件: {json_path.name}（根节点不是对象）")
+            return None
+
+        if "motion_id" not in raw_data:
+            print(f"跳过非动作配置文件: {json_path.name}（缺少 motion_id）")
+            return None
 
         motion = self._parse_motion_definition(raw_data)
         self._validate_motion_definition(motion)
-
         return motion
 
     def _parse_metric_catalog_item(self, raw: dict) -> MetricCatalogItem:
